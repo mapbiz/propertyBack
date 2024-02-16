@@ -192,6 +192,7 @@ store.upload  // Доступ к файлам
 Логирование сделано на [log4js](https://www.npmjs.com/package/log4js)
 
 <h3 id="plugins-nullable"> Очистка нулевых значений </h3>
+
 **Elysia** Работает на системе [хуков](https://elysiajs.com/essential/life-cycle.html)  
 Одним из таких хуков роута является `onBeforeHandle()` хук, до выдачи route данные в `body`
 
