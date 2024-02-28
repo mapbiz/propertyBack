@@ -21,94 +21,50 @@ cp  .env.example  .env
 ```
 Далее заполните .env файл в зависимости от той конфигурации которая вам нужна
 
-  
-
 Поднятие докера
-
 ```bash
-
 docker-compose  up  -d  # Поднятие докера в корне проекта
-
 ```
-
-  
 
 <h3  id="deploy-manualy">Мануальная установка</h3>
 
-  
-
 Сначала скопировать .env
-
 ```bash
-
 cp  .env.example  .env
-
 ```
 
 Далее заполните .env файл в зависимости от той конфигурации которая вам нужна
-
-  
-
 Далее скачивание пакетов bun/npm
 
 ```bash
-
 bun  i
-
 ```
-
-  
 
 *После нужно поднять mongo сервере на указаном вами в .env файле сервер*
 
-  
-
 Запуск bun
-
 ```bash
-
-bun  run  dev  # development
-
-bun  run  start  # product
-
+bun run dev  # development
+bun run start  # product
 ```
-
-  
-  
 
 <h1  id="plugins"> Внутренние плагины </h1>
 
-  
-
 * [Загрузка файлов](#plugins-file)
-
 * [Логирование](#plugins-logger)
-
-  
+* [Очистка нулевых значений](#plugins-nullable)
 
 <h3  id="plugins-file"> Загрузка файлов </h3>
-
-  
-
 Из-за баганной работы [multer](https://www.npmjs.com/package/multer) с **bun** и **Elysia** сервером непосредственно
-
 Был написан самописный bun-node скрипт, для сохранения и выдачи файлов, который совместим только с **Elysia**
 
-  
-
 #### Проблематика
-
 ```js
-
 Bun.resolve(SomePath)
-
 ```
 
 Работает не очень корректно, и не правильно выдает пути из строк `` "./public" `` выдавая ошибку
-
 Поэтому намного более простым и лакончиным решением было изпользовать [node-path](https://nodejs.org/api/path.html)
-
-  
 
 #### Настройка
 
@@ -118,76 +74,75 @@ Bun.resolve(SomePath)
 
 **Не забудьте создать папку по указнному пути**
 
-  
-
 #### Взаимодействие внутри кода
 
 Любой запрос в **Elysia** имеет внутренний [store](https://elysiajs.com/essential/context.html#store) значений, в него и попадет обьект сохраненного файла
 
+###### Апи устарели
 ```ts
-
-type  File = {
-
-field: string, // Название поля с которого файл был получен
-
-originalName: string, // Имя файла до перезаписи
-
-filename: string, // Имя файла после перезаписи
-
-size: number, // Размер файла
-
-destantion: string, // Путь в который был сохранен новый файл
-
+type File = {
+	field: string, // Название поля с которого файл был получен
+	originalName: string, // Имя файла до перезаписи
+	filename: string, // Имя файла после перезаписи
+	size: number, // Размер файла
+	destantion: string, // Путь в который был сохранен новый файл
 }
-
 ```
 
 Поддерживается любой тип файла, он в любом случае будет сохранен
-
 **Будьте осторожны, если файл будет конфиденциальным он все равно будет доступен, по пути /ВашаПеременнаПутиВEnv/имяФайла**
 
-  
+###### Апи устарели
 
-Если файл один то в [store](https://elysiajs.com/essential/context.html#store) будет один обьект в поле upload, если файлов больше одного то будет массив файлов (`` File[] ``)
+~~Если файл один то в [store](https://elysiajs.com/essential/context.html#store) будет один обьект в поле upload, если файлов больше одного то будет массив файлов (`` File[] ``)~~
 
-То, есть доступ будет подобным
+~~То, есть доступ будет подобным~~
 
 ```ts
+app.post('/test', ({ store: File | File[] }) => {
+	store.upload  // Доступ к файлам
+});
+```
+###### Новые апи
+```ts
+type File = {
+   originalFileName: string;
+   field: string;
+   filename: string;
+   size: number;
+
+   reWriteFilename(newFilename: `${string}.${string}`): void; // Переписывает имя файлов только в fs
+   readFile(): Promise<Buffer>; // Асинхронно читает файл
+   readFileSync(): Buffer; // Синхронно читает файл
+   deleteFile(): void; // Удаляет только в fs
+};
+
+type StoreUpload {
+	upload?: {
+		all: File | File[],
+		[key: string]: File | File[],
+	}
+};
 
 app.post('/test', ({ store: File | File[] }) => {
-
-store.upload  // Доступ к файлам
-
+	store.upload.all  // Доступ ко всем файлам
+	store.upload.currentField // Доступ к конкретному полю
 });
-
 ```
 
 **Важно!**
 
 Файлы будут загруженны лишь в одном случае если, прищедшие данные имееют `` Content-Type: 'multipart/form-data' ``
-
 Регистр заголовка не важен **Elysia** все равно переведет его в lowerCase нотацию
-
-  
-  
 
 <h3  id="plugins-logger"> Логирование </h3>
 
-  
-
 Логирование написано просто, оно опирается на хуки запроса **Elysia**
-
 [onRequest](https://elysiajs.com/life-cycle/request.html)
-
 [onResponce](https://elysiajs.com/life-cycle/on-response.html)
 
-  
-
 Он получает ответ сначала от запроса, дошел ли он или нет
-
 Потом он дает ответ что дал сервер
-
-  
 
 Логирование сделано на [log4js](https://www.npmjs.com/package/log4js)
 

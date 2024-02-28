@@ -2,13 +2,14 @@ import { Elysia } from "elysia";
 
 import { staticPlugin } from '@elysiajs/static';
 
-import { resolve } from "path";
+import { resolve } from "node:path";
 
 import serverLoggerPlugin from "./plugins/logger";
 import uploadFilePlugin from "./plugins/fileUpload";
 import nullableTransformPlugin from "./plugins/nullableTransform";
 
 import apiRouter from "../routes/api";
+import responce from "./helpers/responce";
 
 const port: number = Bun.env.SERVER_PORT || 8080;
 
@@ -28,5 +29,21 @@ app.use(nullableTransformPlugin);
 
 // Все пути с префиксами
 app.use(apiRouter);
+
+
+// Хенделинг
+app.onError(({ error, code, set }) => {
+   switch(code) {
+      case "VALIDATION":   
+         const errors = error.all.map(err => {
+            return {
+               field: err.path,
+               message: err.schema.error,
+            };
+         });
+
+      return responce.failureWithErrors({ set, errors });
+   };
+});
 
 app.listen(port, () => console.log(`Server run at: http://${app.server?.hostname}:${app.server?.port}`));

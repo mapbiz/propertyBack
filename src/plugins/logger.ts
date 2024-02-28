@@ -45,7 +45,7 @@ const serverLoggerPlugin = new Elysia()
 .decorate('loggerPlugin', { serverResponce, serverRequest, serverError, serverFatalError })
 .onError(({ code, error }) => {
    serverFatalError.fatal({ errorCodeOfElysia: code, errorStack: error});
-   serverError.error(error, code);
+   if(code !== 'VALIDATION') serverError.error(error, code);
 })
 .onRequest(({ loggerPlugin: { serverRequest }, request, set: { status } }) => {
    serverRequest.info(`${request.url} ${colorsOfMethods(request.method)}  ${colorsOfStatuses(status)}`);

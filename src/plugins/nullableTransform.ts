@@ -16,6 +16,7 @@ const nullableTransformPlugin = new Elysia()
             const typeOfFieldData = typeof dataInField;
             
             if(typeOfFieldData !== 'boolean' && !dataInField) clearedValues[field] = undefined;
+            if(Number.isNaN(dataInField)) clearedValues[field] = undefined;
             else clearedValues[field] = dataInField;
          };
          

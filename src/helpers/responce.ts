@@ -67,13 +67,14 @@ export default {
 
    failureWithErrors<T = unknown>({ set, errors, statusCode = 400 }: ErrorsParams<T>): ResponceWithErrors<T> {
       set.status = statusCode;
+            
 
       return {
          ok: false,
          errors,
       };
    },
-   failureWithReason({ set, statusCode = 400, reason }: ReasonParam): ReponceWithReason {
+   failureWithReason({ set, reason, statusCode = 400 }: ReasonParam): ReponceWithReason {
       set.status = statusCode;
 
       return {
@@ -89,7 +90,7 @@ export default {
          error,
       }
    },
-   failureNotFound({ set, statusCode = 404, error }: ErrorParams<string>): ResponceWithError<string> {
+   failureNotFound({ set, error, statusCode = 404 }: ErrorParams<string>): ResponceWithError<string> {
       set.status = statusCode;
 
       return {

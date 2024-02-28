@@ -1,11 +1,12 @@
-import { Elysia } from "elysia";
+import { Elysia, Context } from "elysia";
 
 import { randomUUID } from "node:crypto";
 import { resolve } from "path";
-import { writeFile } from "fs/promises";
+import { readFileSync } from "node:fs";
+import { writeFile, rename, rm, readFile } from "fs/promises";
 
 import { safeMethods } from "../../types/method.types";
-
+import type { TempFile, File } from "../../types/fileUpload.types"; 
 
 import { fileTypeFromBlob } from "file-type";
 
@@ -19,32 +20,100 @@ const uploadFilePlugin: Elysia = new Elysia()
    // Если formData не пришла то не обрабатывать
    if(!request.headers.get('content-type')?.split(";").includes('multipart/form-data')) return;
 
-   const files = [];
+   const filesBlobs: TempFile[] = [];
+
+
+   store.upload = {
+      all: {},
+   };
 
    for(let bodyField in body) {
       const bodyData = body[bodyField];
 
-      const bodyDataIsBlob = bodyData instanceof Blob;
+      if(bodyData instanceof Blob) {
+         filesBlobs.push({
+            file: bodyData,
+            field: bodyField,
+            originalFileName: bodyData.name,
+            size: bodyData.size,
+         });
+      };
 
+      if(Array.isArray(bodyData)) {
+         for(let nestedBodyField of bodyData) {
+            
 
-      if(!bodyDataIsBlob) continue;
+            if(nestedBodyField instanceof Blob) {
+               filesBlobs.push({
+                  file: nestedBodyField,
+                  field: bodyField,
+                  originalFileName: nestedBodyField.name,
+                  size: nestedBodyField.size,
+               });
+            }
+         };
+      }; 
 
-      const bodyFileInDataExtension = await fileTypeFromBlob(bodyData),
-      bodyGeneratedName = `${randomUUID()}.${bodyFileInDataExtension?.ext}`;
-      
-      files.push({
-         field: bodyField,
-         originalName: bodyData.name,
-         filename: bodyGeneratedName,
-         size: bodyData.size,
-         destantion: fileUploadDist,
-      });
-
-      writeFile(resolve(fileUploadDist, bodyGeneratedName), new Buffer(await bodyData.arrayBuffer()));
    };
 
-   // Если файл один то вернуть первый обьект массива файлов
-   store.upload = files.length > 1 ? files: files[0];
+   const uploadedImages: File[] = await Promise.all(filesBlobs.map(async (fileBlob) => {
+      const extensionOfFIle = await fileTypeFromBlob(fileBlob.file),
+      generateFileName = `${randomUUID()}.${extensionOfFIle?.ext}`;
+      
+      let createFilePath = resolve(fileUploadDist, generateFileName);
+
+      const createdFile = await writeFile(createFilePath, new Buffer(await fileBlob.file.arrayBuffer()));
+      
+
+      const resultFile: File = {
+         originalFileName: fileBlob.originalFileName,
+         field: fileBlob.field,
+         filename: generateFileName,
+         size: fileBlob.size, 
+         reWriteFilename(newFilename) {
+            rename(createFilePath, resolve(fileUploadDist, newFilename));
+            
+            createFilePath = resolve(fileUploadDist, newFilename);
+
+            this.filename = newFilename;
+         },
+         deleteFile() {
+            rm(createFilePath)
+         },
+         async readFile() {
+            return await readFile(createFilePath);
+         },
+         readFileSync() {
+            return readFileSync(createFilePath);
+         },
+      };
+
+      return resultFile;
+   }));
+
+   // @ts-ignore
+   store.upload.all = uploadedImages.length > 1 ? uploadedImages: uploadedImages[0];
+   if(uploadedImages.length > 1) {
+      let fieldsStore: {
+         [key: string]: File[],
+      } = {};
+      
+      uploadedImages.forEach(uploadImage => {
+         if(Array.isArray(fieldsStore[uploadImage.field])) fieldsStore[uploadImage.field].push(uploadImage);
+         else fieldsStore[uploadImage.field] = [uploadImage];
+      });
+
+      for(let field in fieldsStore) {
+         const currentField = fieldsStore[field];
+
+         if(currentField.length === 1) fieldsStore[field] = currentField[0];
+      };
+
+      store.upload = {
+         ...store.upload,
+         ...fieldsStore,
+      };
+   }
 })
 
 export default uploadFilePlugin;

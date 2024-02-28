@@ -1,59 +1,159 @@
 import type { Context } from "elysia";
 
-import type { ReponceWithoutData, ResponceWithData } from "../types/responce.types"; 
+import type { ReponceWithoutData, ResponceWithData, ResponceWithError, ReponceWithReason } from "../types/responce.types"; 
+import type { StoreUpload } from "../types/fileUpload.types"; 
 
-import { ObjectResponceBody } from "../types/object.types";
+import type { TenantCreateNewRequest } from "../types/tenant.types";
+
+import { ObjectCreateNewRequest, ObjectTypeRequest } from "../types/object.types";
 import { CustomRequestParams } from "../types/request.types"; 
 
 import orm from "../db";
-import { Objects } from "../db/entities/Objects"; 
+import { Object } from "../db/entities/Object"; 
+import { Images } from "../db/entities/Images";
+import { Tenant } from "../db/entities/Tenants"; 
+
 import responce from "../src/helpers/responce";
 
-type CustomBodyAndSet<T, TSet = Context['set']> = Pick<CustomRequestParams<T, TSet>, 'body' | 'set'>;
 
 export class ApiController {
 
    // create
-   async createNewObject({ body, set }: CustomBodyAndSet<ObjectResponceBody>): Promise<ResponceWithData<Object>> {
-      const newObject: Objects = new Objects({
+   async createNewObject({ body, set, store }: ObjectCreateNewRequest): Promise<ResponceWithData<Object> | ReponceWithReason> {
+      if(store?.upload?.all === undefined || (body.photos === undefined && body.photosLayout === undefined)) return responce.failureWithReason({ set, reason: "У обьекта не может не быть фотки" });
+
+      if(store.upload.photos === undefined) return responce.failureWithError({ 
+         set, 
+         error: { 
+            field: 'photo',
+            message: 'У обьекта не может не быть фото!'
+         } 
+      })
+      if(store.upload.photosLayout === undefined) return responce.failureWithError({
+         set, 
+         error: {
+            field: 'photoLayout',
+            message: 'У обьекта не может не быть фото планировки!'
+         },
+      })
+
+      const newObject: Object = new Object({
          title: body.title,
-         price: body.price,
          description: body.description,
+         address: body.address,
          metro: body.metro,
-         adress: body.adress,
-         globalPrice: body.globalPrice,
-         agentRemuneration: body.agentRemuneration,
-         techParamers: {
-            square: body.square,
-            mouthRentFlow: body.mouthRentFlow,
-            typeWindow: body.typeWindow,
-            layout: body.layout,
-            ceilingHeight: (!body.from && !body.to) ? body.ceilingHeight: {
-               to: body.to,
-               from: body.from,
-            }, 
-            enter: body.enter,
-            force: body.force,
-            furnish: body.furnish,
+         payback: body.payback,
+         zone: body.zone,
+         price: {
+            square: body.priceSquare,
+            value: body.priceValue,
+            profitability: body.priceProfitability,
+            global: body.priceGlobal,
+            rent: {
+               year: body.priceRentYear,
+               mouth: body.priceRentMouth,
+            },
          },
          panorama: {
-            lat: body.lat,
-            lon: body.lon,
-         }, 
+            lat: body.panoramaLat,
+            lon: body.panoramaLon,
+         },
+         tenantsInfo: {
+            rentFlow: {
+               year: body.tenantsInfoRentFlowYear,
+               mount: body.tenantsInfoRentFlowMount,
+            },
+            dateContractRents: body.tenantsInfoDateContractRents,
+         },
+         info: {
+            square: body.infoSquare,
+            floor: body.infoFloor,
+            ceilingHeight: (!body.infoFrom && !body.infoTo) ? body.infoCeilingHeight: {
+               to: body.infoTo,
+               from: body.infoFrom,
+            }, 
+            countEntrance: body.infoCountEntrance,
+            glazing: body.infoGlazzing,
+            typeWindow: body.infoTypeWindow,
+            layout: body.infoLayout,
+            enter: body.infoEnter,
+            finishing: body.infoFinishing,
+            hood: body.infoHood,
+         },
+
       });
-   
+
+      
+      // Создания обьекта в бд
       await orm.persist([newObject]).flush();
 
+      const newImages = Array.isArray(store.upload.photos) ? 
+         store.upload.photos.map(uploadedPhoto => new Images(uploadedPhoto.filename))
+         :
+         [new Images(store.upload.photos.filename)]
+      ,
+      newLayoutImages = Array.isArray(store.upload.photosLayout) ?
+         store.upload.photosLayout.map(uploadLayoutPhoto => new Images(uploadLayoutPhoto.filename))
+         :
+         [new Images(store.upload.photosLayout.filename)]
+      ;
 
-      return responce.successCreated.withData<Objects>({ set, data: newObject });
+      newObject.images.add(newImages);
+      newObject.layoutImages.add(newLayoutImages);
+
+      await orm.persist([...newImages, ...newLayoutImages]).flush();
+
+      return responce.successCreated.withData<Object>({ set, data: newObject });
    };
 
-   // get
-   async getObjects({ set }: CustomBodyAndSet<never>): Promise<ResponceWithData<Array<Object>> | ReponceWithoutData> {
-      const getAllObjects: Array<Object> | [] = await orm.findAll(Objects);
+   async addTentantToObject({ body, set, params }: CustomRequestParams) {
+      const objectToAddTentant = await orm.findOneOrFail(Object, {
+         id: params.id,   
+      });
 
-      return getAllObjects.length > 0 ? 
-      responce.successWithData<Array<Object>>({ set, data: getAllObjects }): 
-      responce.successWithoutData({ set });
+      orm.setFilterParams('exists', body.tentants);
+
+      const tentantsToAdd = await orm.findAll(Tenant, {
+         filters: {
+            
+         },
+      });
+
+      objectToAddTentant.tentants.add();
+
+   };
+
+   async createNewTentant({ body, set, store }: TenantCreateNewRequest) {
+      const newTentant = new Tenant({
+         name: body.name,
+         logo: new Images(store.upload?.all.filename),
+         category: body.category,
+      });
+
+      await orm.persistAndFlush([newTentant]);
+
+      return responce.successCreated.withData({ set, data: newTentant });
+   };
+
+
+   // get
+   async getObjects({ set, params }: ObjectTypeRequest)  {
+      const getObjects = await orm.findAll(Object, {
+         populate: ['images', 'layoutImages'],
+      });
+
+      return responce.successWithData({
+         set,
+         data: params === undefined ?
+         getObjects:
+         getObjects.filter(obj => obj.type === params.type)
+      })
    }
+   async getTentant({ set }: CustomRequestParams) {
+      const allTentants = await orm.findAll(Tenant);
+
+      if(allTentants.length === 0) return responce.successWithoutData({ set });
+ 
+      return responce.successWithData({ set, data: allTentants });
+   };
 };

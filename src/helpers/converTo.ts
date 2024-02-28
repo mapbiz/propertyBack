@@ -5,6 +5,10 @@ type ConvertField = {
    field: string;
    convert: CustomConverter | Converters;
 };
+type ConvertFields = {
+   fields: string[];
+   convert: CustomConverter | Converters;
+};
 
 
 const converters = {
@@ -36,11 +40,12 @@ const converters = {
    },
 }; 
 
-export const objectConvertFields = <T>(objectFields: Array<ConvertField>, object: T) => {
-   for(let converField of objectFields) {
-      const getConverterIfNeed: (value: unknown) => unknown = typeof converField.convert === 'string' ? 
-      converters[converField.convert]: converField.convert;
 
-      Reflect.set(object, converField.field, getConverterIfNeed(object[converField.field]));
+export const objectConvertField = <T = unknown>(objectFields: Array<ConvertField>, object: T) => {
+   for(let convertField of objectFields) {
+      const getConverterIfNeed: (value: unknown) => unknown = typeof convertField.convert === 'string' ? 
+      converters[convertField.convert]: convertField.convert;
+
+      Reflect.set(object, convertField.field, getConverterIfNeed(object[convertField.field]));
    };
 };

@@ -20,10 +20,16 @@ export type ReponceWithReason = {
 
 export type SetterResponce = Context['set'];
 
+export enum HttpCodes {
+   NOT_FOUND = 404,
+   BAD_REQUEST = 400,
+   SUCCESS = 200,
+   CREATED = 201,
+   NOT_CONTENT = 204,
+};
 export type StatusCodesSuccess = 200 | 201 | 204;
 export type StatusCodesFailure = 400 | 404 | 403 | 500;
 export type StatusCodes = StatusCodesSuccess | StatusCodesFailure;
-
 
 export type ErrorObject<T = string> = {
    field: string;

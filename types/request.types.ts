@@ -9,13 +9,13 @@ export type ElysiaRouteValidation<T = undefined, T1 = undefined, T2 = undefined>
 
 export type CustomRequestParams<
    T = Context['body'], 
-   TRequest = Context['request'], 
    TSet = Context['set'],
+   TStore = Context['store'],
+   TRequest = Context['request'], 
    TParams = Context['params'], 
    TQuery = Context['query'],
    TCookie = Context['cookie'],
    TPath = Context['path'],
-   TStore = Context['store'],
 > = {
    body: T,
    set: TSet,
