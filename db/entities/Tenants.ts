@@ -2,12 +2,12 @@ import {
    Property, 
    Entity, 
    OneToOne,
-   ManyToOne,  
-   Filter,
+   ManyToOne,
 } from "@mikro-orm/core";
 import type { Rel } from "@mikro-orm/core"; 
 
 import { BaseEntity } from "./BaseEntity.ts";
+import { Objects } from "./Object.ts"; 
 import { Images } from "./Images.ts";
 
 import type { Tenant as TenantType } from "../../types/tenant.types";
@@ -15,9 +15,6 @@ import { EntityManager } from "@mikro-orm/mongodb";
 
 
 @Entity()
-@Filter({ name: 'exists', cond: async (args, type, em: EntityManager) => {
-   console.log({ args, type });
-} })
 export class Tenant extends BaseEntity {
    @Property({ nullable: false })
    public name: string;
@@ -33,14 +30,14 @@ export class Tenant extends BaseEntity {
    }) 
    logo!: Rel<Images>;
 
-   @ManyToOne(() => Object, {
+   @ManyToOne(() => Objects, {
       mapToPk: true,
       serializedPrimaryKey: true,
       nullable: true,
       default: null,
       unique: false,
    })
-   object!: Rel<Object>
+   object!: Rel<Objects>
 
    constructor({
       name, 

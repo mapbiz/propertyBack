@@ -2,6 +2,7 @@ import type { Image } from "./images.types";
 import type { Context } from "elysia"; 
 import type { StoreUpload } from "./fileUpload.types"; 
 import type { CustomRequestParams } from "./request.types";
+import type { ObjectId } from "@mikro-orm/mongodb";
 
 export type TypeObject = 'sale' | 'rent' | 'sale-business' | 'hidden';
 
@@ -28,11 +29,10 @@ export type ObjectPrice = {
    // Цена за метр кв в аренде или в продаже
    square: number;
    // Цена или Арендная ставка в месяц
-   value: number;
+   // value: number;
    // Существует только в продаже готового бизнеса
    profitability?: number;
    
-   // Только для продажи
    global?: number;
 
    rent?: {
@@ -58,17 +58,21 @@ export type ObjectInfo = {
    hood: boolean;
 };
 export type ObjectTenantsInfo = {
+   tentantId: ObjectId;
+   detalization: string[],
+   indexation: number;
+   contract: string;
    rentFlow: {
       mount: number;
       year: number;
    },
-   dateContractRents: number;
-   tenants: string;
+   // dateContractRents: number;
 };
 
 export type Object = {
    // Общие поля
    title: string;
+   slug: string;
    description: string;
    images: Omit<Image, 'id'>[];
    layoutImages: Omit<Image, 'id'>[];
@@ -77,13 +81,17 @@ export type Object = {
    zone: boolean;
 
    info: Partial<ObjectInfo>;
-   
+
    address?: string;
    metro?: string;
 
    
    // Только sale-business
    tenantsInfo?: Partial<ObjectTenantsInfo>; 
+   globalRentFlow?: {
+      year: number;
+      mouth: number;
+   };
 
    // Только sale-business
    payback?: number; 
@@ -93,7 +101,7 @@ export type Object = {
    type: TypeObject;
 };
 
-export type ObjectRequest = Omit<Object, 'info' | 'tentantsInfo' | 'price' | 'type' | 'panorama'> 
+export type ObjectRequest = Omit<Object, 'slug' | 'info' | 'tentantsInfo' | 'price' | 'type' | 'panorama'> 
 & {
    // info
    infoSquare: number; 
@@ -111,7 +119,6 @@ export type ObjectRequest = Omit<Object, 'info' | 'tentantsInfo' | 'price' | 'ty
 
    // price
    priceSquare: number;
-   priceValue: number;
    priceProfitability: number; 
    priceGlobal: number;
    priceRentYear: number;
@@ -129,6 +136,10 @@ export type ObjectRequest = Omit<Object, 'info' | 'tentantsInfo' | 'price' | 'ty
    // photos
    photos: Blob | Blob[],
    photosLayout: Blob | Blob[],
+
+   // only ready bussiness
+   globalRentFlowYear: number;
+   globalRentFlowMouth: number;
 }
 
 export type ObjectCreateNewRequest = Pick<CustomRequestParams<ObjectRequest, Context['set'], StoreUpload>, 'body' | 'set' | 'store'>;
@@ -140,3 +151,11 @@ export type ObjectTypeRequest = Pick<CustomRequestParams<
    { type: 'sale' | 'rent' | 'hidden' }
 >, 
 'request' | 'set' | 'params'>
+export type ObjectAddNewTenantRequest = Pick<CustomRequestParams<
+   {
+      tentants: ObjectTenantsInfo[],
+   },
+   Context['set'],
+   Context['request'],
+   { id: string }
+>, 'body' | 'set' | 'params'>

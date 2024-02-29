@@ -1,15 +1,15 @@
 import type { Context } from "elysia";
 
-import type { ReponceWithoutData, ResponceWithData, ResponceWithError, ReponceWithReason } from "../types/responce.types"; 
+import type { ReponceWithoutData, ResponceWithData, ResponceWithError, ReponceWithReason, ErrorObject } from "../types/responce.types"; 
 import type { StoreUpload } from "../types/fileUpload.types"; 
 
 import type { TenantCreateNewRequest } from "../types/tenant.types";
 
-import { ObjectCreateNewRequest, ObjectTypeRequest } from "../types/object.types";
+import { ObjectCreateNewRequest, ObjectTypeRequest, ObjectAddNewTenantRequest, ObjectTenantsInfo } from "../types/object.types";
 import { CustomRequestParams } from "../types/request.types"; 
 
 import orm from "../db";
-import { Object } from "../db/entities/Object"; 
+import { Objects } from "../db/entities/Object"; 
 import { Images } from "../db/entities/Images";
 import { Tenant } from "../db/entities/Tenants"; 
 
@@ -19,7 +19,7 @@ import responce from "../src/helpers/responce";
 export class ApiController {
 
    // create
-   async createNewObject({ body, set, store }: ObjectCreateNewRequest): Promise<ResponceWithData<Object> | ReponceWithReason> {
+   async createNewObject({ body, set, store }: ObjectCreateNewRequest): Promise<ResponceWithData<Objects> | ReponceWithReason> {
       if(store?.upload?.all === undefined || (body.photos === undefined && body.photosLayout === undefined)) return responce.failureWithReason({ set, reason: "У обьекта не может не быть фотки" });
 
       if(store.upload.photos === undefined) return responce.failureWithError({ 
@@ -37,16 +37,19 @@ export class ApiController {
          },
       })
 
-      const newObject: Object = new Object({
+      const newObject: Objects = new Objects({
          title: body.title,
          description: body.description,
          address: body.address,
          metro: body.metro,
          payback: body.payback,
          zone: body.zone,
+         globalRentFlow: {
+            year: body.globalRentFlowYear,
+            mouth: body.globalRentFlowMouth,
+         },
          price: {
             square: body.priceSquare,
-            value: body.priceValue,
             profitability: body.priceProfitability,
             global: body.priceGlobal,
             rent: {
@@ -58,13 +61,13 @@ export class ApiController {
             lat: body.panoramaLat,
             lon: body.panoramaLon,
          },
-         tenantsInfo: {
-            rentFlow: {
-               year: body.tenantsInfoRentFlowYear,
-               mount: body.tenantsInfoRentFlowMount,
-            },
-            dateContractRents: body.tenantsInfoDateContractRents,
-         },
+         // tenantsInfo: {
+         //    rentFlow: {
+         //       year: body.tenantsInfoRentFlowYear,
+         //       mount: body.tenantsInfoRentFlowMount,
+         //    },
+         //    dateContractRents: body.tenantsInfoDateContractRents,
+         // },
          info: {
             square: body.infoSquare,
             floor: body.infoFloor,
@@ -103,24 +106,61 @@ export class ApiController {
 
       await orm.persist([...newImages, ...newLayoutImages]).flush();
 
-      return responce.successCreated.withData<Object>({ set, data: newObject });
+      return responce.successCreated.withData<Objects>({ set, data: newObject });
    };
 
-   async addTentantToObject({ body, set, params }: CustomRequestParams) {
-      const objectToAddTentant = await orm.findOneOrFail(Object, {
-         id: params.id,   
+   async addTentantToObject({ body, set, params }: ObjectAddNewTenantRequest) {
+      const getObject: Objects | null = await orm.findOne(Objects, {
+         id: params.id,
+         type: 'sale-business',
       });
 
-      orm.setFilterParams('exists', body.tentants);
-
-      const tentantsToAdd = await orm.findAll(Tenant, {
-         filters: {
-            
+      if(getObject === null) return responce.failureNotFound({
+         set,
+         error: {
+            field: "id",
+            message: "Обьект не найден либо он не имеет type sale-business"
          },
       });
 
-      objectToAddTentant.tentants.add();
+      const findTetants: Tenant[] = [],
+      errorAddTentant: ErrorObject[] = [];
 
+
+      for(let tenant of body.tentants) {
+         const findTetant = await orm.findOne(Tenant, {
+            id: tenant.tentantId,
+         });
+
+         if(findTetants === null) findTetants.push({ field: tenant.tentantId, message: "Не найден!"  });
+
+         findTetants.push(findTetant);
+
+         const findTentatIndexInObject: number = getObject.tentanstInfo?.findIndex(objTentant => objTentant.tentantId === tenant.tentantId);
+
+         if(findTentatIndexInObject < 0) {
+            getObject.tentanstInfo?.push(tenant);
+            
+            continue;
+         }
+         else {
+            errorAddTentant.push({ 
+               field: "tenant", 
+               message: `Арендатор ${tenant.tentantId} уже существует в обьекте! \n попробуйте отредактировать!` 
+            });
+
+            continue;
+         }
+      };
+
+      if(errorAddTentant.length > 0) return responce.failureWithErrors({ set, errors: errorAddTentant }); 
+
+
+      getObject.tentants.add([...findTetants]);
+
+      await orm.persist([getObject]).flush();
+
+      return responce.successWithData({ set, data: getObject });
    };
 
    async createNewTentant({ body, set, store }: TenantCreateNewRequest) {
@@ -138,16 +178,17 @@ export class ApiController {
 
    // get
    async getObjects({ set, params }: ObjectTypeRequest)  {
-      const getObjects = await orm.findAll(Object, {
-         populate: ['images', 'layoutImages'],
+      const getObjects = await orm.findAll(Objects, {
+         where: {
+            type: !!params?.type ?
+            params.type:
+            { $ne: 'hidden' }
+         },
+         populate: ['images', 'layoutImages']
       });
 
-      return responce.successWithData({
-         set,
-         data: params === undefined ?
-         getObjects:
-         getObjects.filter(obj => obj.type === params.type)
-      })
+
+      return responce.successWithData({ set, data: getObjects });
    }
    async getTentant({ set }: CustomRequestParams) {
       const allTentants = await orm.findAll(Tenant);

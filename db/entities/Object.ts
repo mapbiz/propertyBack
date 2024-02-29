@@ -1,4 +1,19 @@
-import { Entity, Property, OneToMany, Collection, OnLoad } from "@mikro-orm/mongodb";
+import { 
+   Entity, 
+   Property, 
+   OneToMany, 
+   Collection, 
+   OnLoad,
+   BeforeCreate,
+   EntityManager,
+   Filter,
+   OnInit,
+   EntityRepository,
+   FilterQuery,
+   FindOptions,
+   Loaded,
+   BeforeUpdate,
+} from "@mikro-orm/mongodb";
 
 import type { 
    TypeObject, 
@@ -9,18 +24,42 @@ import type {
    ObjectPrice, 
 } from "../../types/object.types.ts"; 
 
+import { slug } from "../../src/helpers/slug.ts";
 
 import { BaseEntity } from "./BaseEntity.ts"; 
 import { Images } from "./Images.ts";
 import { Tenant } from "./Tenants.ts";
 
-@Entity()
-export class Object extends BaseEntity {
-   @Property({ persist: false })
-   type?: TypeObject = 'hidden';
+type NeedsTypes = {
+   payback?: number,
+   price: Partial<ObjectPrice>,
+   globalRentFlow: ObjectType['globalRentFlow'],
+   tentanstInfo?: Partial<ObjectTenantsInfo>,
+};
+const computedType = ({ payback, price, globalRentFlow }: NeedsTypes): TypeObject => {
+   let rentEmpty = JSON.stringify(price.rent) === '{}',
+   // tentantsrentFlowEmpty = JSON.stringify(tentanstInfo?.rentFlow) === '{}',
+   globalRentFlowEmpty = JSON.stringify(globalRentFlow) === '{}';
+
+   if((!!payback && !globalRentFlowEmpty && !!price.global && !!price.profitability) && rentEmpty) return 'sale-business';
+   if((!payback && globalRentFlowEmpty && rentEmpty && !price.profitability) && (!!price.global)) return 'sale';
+   if((!payback && globalRentFlowEmpty && !!price.global && !price.profitability) && (!rentEmpty)) return 'rent';
+
+
+   return 'hidden';
+};
+
+
+@Entity({ tableName: "Object" })
+export class Objects extends BaseEntity {
+   @Property({ nullable: false, unique: false, default: "hidden" })
+   public type?: TypeObject;
 
    @Property({ nullable: false, unique: true })
    public title: string;
+
+   @Property({ nullable: false, unique: true })
+   public slug: string;
 
    @Property({ nullable: false })
    public description: string;
@@ -40,8 +79,11 @@ export class Object extends BaseEntity {
    @Property({ nullable: true })
    public metro?: string;
 
+   @Property({ nullable: true, default: null, })
+   public tentanstInfo?: ObjectTenantsInfo[];
+   
    @Property({ nullable: true })
-   public tentanstInfo?: Partial<ObjectTenantsInfo>;
+   public globalRentFlow: ObjectType['globalRentFlow'];
 
    @Property({ nullable: true })
    public payback?: number;
@@ -62,21 +104,9 @@ export class Object extends BaseEntity {
    @OneToMany(() => Tenant, 'object', { unique: false, nullable: true, })
    tentants = new Collection<Tenant>(this);
 
-   @OnLoad()
-   async computedType() {
-      const {
-         payback,
-         price,
-         tentanstInfo,
-      } = this;
-
-      let rentEmpty = JSON.stringify(price.rent) === JSON.stringify({}),
-      rentFlowEmpty = JSON.stringify(tentanstInfo?.rentFlow) === JSON.stringify({});
-
-      if((payback !== undefined && !rentFlowEmpty)&& (price?.global === undefined && rentEmpty)) this.type = 'sale-business';
-      else if(price.global !== undefined && (payback === undefined && rentEmpty && rentFlowEmpty)) this.type = 'sale';
-      else if(!rentEmpty && (payback === undefined && price?.global === undefined && rentFlowEmpty)) this.type = 'rent';
-      else this.type = 'hidden';
+   @BeforeUpdate()
+   async onBeforeUpdate(): Promise<void> {
+      return;
    };
 
    constructor({
@@ -85,7 +115,8 @@ export class Object extends BaseEntity {
       panorama,
       info,
       address,
-      tenantsInfo,
+      globalRentFlow,
+      // tenantsInfo,
       payback,
       price,
       metro,
@@ -95,7 +126,9 @@ export class Object extends BaseEntity {
       super();
 
       this.title = title;
+      this.slug = slug(title);
       this.description = description;
+      this.globalRentFlow = globalRentFlow;
       this.agentRemuneration = agentRemuneration;
       this.price = price;
       this.panorama = panorama;
@@ -104,99 +137,7 @@ export class Object extends BaseEntity {
       this.payback = payback;
       this.metro = metro;
       this.zone = zone; 
-      this.tentanstInfo = tenantsInfo;
-
-      console.log({ payback, global: price.global, rent: price.rent })
-
-      // virtual fields
-      let rentEmpty = JSON.stringify(price.rent) === JSON.stringify({}),
-      rentFlowEmpty = JSON.stringify(tenantsInfo?.rentFlow) === JSON.stringify({});
-
-      if((payback !== undefined && !rentFlowEmpty)&& (price?.global === undefined && rentEmpty)) this.type = 'sale-business';
-      else if(price.global !== undefined && (payback === undefined && rentEmpty && rentFlowEmpty)) this.type = 'sale';
-      else if(!rentEmpty && (payback === undefined && price?.global === undefined && rentFlowEmpty)) this.type = 'rent';
-      else this.type = 'hidden';
+      this.tentanstInfo = [];
+      this.type = computedType({ payback, price, globalRentFlow });
    };
 };
-
-// class TObjects extends BaseEntity {
-//    @Property({ persist: false })
-//    type: TypeObject;
-
-//    @Property({ unique: true, nullable: false, length: 400 })
-//    public title: string;
-
-//    @Property({ nullable: false })
-//    public description: string;
-
-//    @Property({ nullable: true })
-//    public price?: number;
-   
-//    @Property({ nullable: true })
-//    public priceMouth?: number;
-
-//    @Property({ nullable: true })
-//    public priceSquare?: number;   
-
-//    @Property({ nullable: true })
-//    public priceSquareYear?: number;
-
-//    @Property({ nullable: true })
-//    public payback?: number;
-
-//    @Property({ nullable: true })
-//    public adress?: string;
-
-//    @Property({ nullable: true })
-//    public metro?: string;
-
-//    @Property({ nullable: true })
-//    public panorama?: Partial<Panaroma>;
-
-//    @Property({ nullable: true })
-//    public techParamers?: Partial<TechParamers>;
-
-//    @Property({ nullable: true })
-//    public globalPrice?: number;
-
-//    @Property({ nullable: true })
-//    public agentRemuneration?: number;
-
-//    @OneToMany(() => Images, img => img.object, { unique: false })
-//    images = new Collection<Images>(this);
-
-//    constructor({ 
-//       title, 
-//       price, 
-//       priceMouth,
-//       description, 
-//       payback,
-//       adress, 
-//       metro, 
-//       panorama, 
-//       priceSquare, 
-//       priceSquareYear,
-//       techParamers, 
-//       globalPrice, 
-//       agentRemuneration 
-//    }: Object) {
-//       super();
-
-//       this.title = title;
-//       this.price = price;
-//       this.priceMouth = priceMouth;
-//       this.priceSquare = priceSquare;
-//       this.priceSquareYear = priceSquareYear;
-//       this.payback = payback;
-//       this.adress = adress;
-//       this.metro = metro;
-//       this.panorama = panorama;
-//       this.description = description;
-//       this.techParamers = techParamers;
-//       this.globalPrice = globalPrice;
-//       this.agentRemuneration = agentRemuneration;
-
-//       // virtual fields
-//       if(globalPrice === undefined && )
-//    }; 
-// };

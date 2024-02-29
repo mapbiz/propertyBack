@@ -182,5 +182,17 @@ export const objectModel = new Elysia()
             error: "Фотки планировки обязательны для создания обьекта!"
          }
       )
-   })
+   }),
+   addTentantObject: t.Array(
+      t.Object({
+         tentantId: t.String(),
+         indexation: t.Number(),
+         contract: t.String(),
+         detalization: t.Array(t.String()),
+         rentFlow: t.Object({
+            mounth: t.Number(),
+            year: t.Number(),
+         })
+      })
+   )
 });

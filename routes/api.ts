@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 
 const router: Elysia = new Elysia({ prefix: '/api/v1' });
 
@@ -27,6 +27,12 @@ router
 
 // post object
 router
+.use(objectModel)
+.post('/object/add-tentant/:id', controller.addTentantToObject, {
+   params: t.Object({
+      id: t.String()
+   }),
+})
 .post('/object', controller.createNewObject, 
 {
    // @ts-ignore
@@ -38,6 +44,8 @@ router
 
          // only ready bus
          { convert: 'number', field: 'payback' },
+         { convert: 'number', field: 'globalRentFlowYear' },
+         { convert: 'number', field: 'globalRentFlowMouth' },
 
          // info
          { convert: 'number', field: 'infoSquare' },
@@ -51,7 +59,6 @@ router
 
          // price
          { convert: 'number', field: 'priceSquare' },
-         { convert: 'number',  field: 'priceValue' },
          { convert: 'number', field: 'priceProfitability' },
          { convert: 'number', field: 'priceGlobal' },
          { convert: 'number', field: 'priceRentYear' },

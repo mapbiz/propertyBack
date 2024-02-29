@@ -43,6 +43,8 @@ app.onError(({ error, code, set }) => {
          });
 
       return responce.failureWithErrors({ set, errors });
+      case "UNKNOWN": 
+      return responce.failureWithReason({ set, reason: "Неизвестная ошибка сервера!", statusCode: 500 });
    };
 });
 
