@@ -17,9 +17,10 @@ const controller: ApiController = new ApiController();
 // get
 router
 .use(objectModel)
-.get('/tentant', controller.getTentant)
-.get('/object', controller.getObjects)
-.get('/object/:type', controller.getObjects, {
+.get('/tentant', controller.getTentants)
+.get('/objects', controller.getObjects)
+.get('/object/:slug', controller.getObjectBySlug)
+.get('/objects/:type', controller.getObjects, {
    params: 'getObject',
 })
 

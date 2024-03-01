@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { swagger } from "@elysiajs/swagger";
 
 import { staticPlugin } from '@elysiajs/static';
 
@@ -15,6 +16,20 @@ const port: number = Bun.env.SERVER_PORT || 8080;
 
 const app: Elysia = new Elysia();
 
+// swagger
+if(Bun.env.NODE_ENV === 'development') {
+   app.use(swagger({
+      path: "/swagger",
+      provider: 'swagger-ui',
+      autoDarkMode: false,
+      documentation: {
+         info: {
+            title: "api docs",
+            version: "0.8.5"
+         },
+      },
+   }))
+};
 
 // Плагины
 app.use(staticPlugin({
@@ -49,3 +64,5 @@ app.onError(({ error, code, set }) => {
 });
 
 app.listen(port, () => console.log(`Server run at: http://${app.server?.hostname}:${app.server?.port}`));
+
+export default app;

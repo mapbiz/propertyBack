@@ -1,11 +1,11 @@
 import type { Context } from "elysia";
 
-import type { ReponceWithoutData, ResponceWithData, ResponceWithError, ReponceWithReason, ErrorObject } from "../types/responce.types"; 
+import type { ReponceWithoutData, ResponceWithData, ResponceWithError, ReponceWithReason, ErrorObject, ResponceWithErrors } from "../types/responce.types"; 
 import type { StoreUpload } from "../types/fileUpload.types"; 
 
 import type { TenantCreateNewRequest } from "../types/tenant.types";
 
-import { ObjectCreateNewRequest, ObjectTypeRequest, ObjectAddNewTenantRequest, ObjectTenantsInfo } from "../types/object.types";
+import { ObjectCreateNewRequest, ObjectTypeRequest, ObjectAddNewTenantRequest, ObjectTenantsInfo, ObjectSlugRequest } from "../types/object.types";
 import { CustomRequestParams } from "../types/request.types"; 
 
 import orm from "../db";
@@ -14,6 +14,7 @@ import { Images } from "../db/entities/Images";
 import { Tenant } from "../db/entities/Tenants"; 
 
 import responce from "../src/helpers/responce";
+import { Loaded } from "@mikro-orm/core";
 
 
 export class ApiController {
@@ -108,11 +109,12 @@ export class ApiController {
 
       return responce.successCreated.withData<Objects>({ set, data: newObject });
    };
-
-   async addTentantToObject({ body, set, params }: ObjectAddNewTenantRequest) {
+   async addTentantToObject({ body, set, params }: ObjectAddNewTenantRequest): Promise<ResponceWithErrors | ResponceWithError<string> | ResponceWithData<Objects>> {
       const getObject: Objects | null = await orm.findOne(Objects, {
          id: params.id,
          type: 'sale-business',
+      }, {
+         populate: ['images', 'layoutImages', 'tenants'],
       });
 
       if(getObject === null) return responce.failureNotFound({
@@ -123,48 +125,37 @@ export class ApiController {
          },
       });
 
-      const findTetants: Tenant[] = [],
-      errorAddTentant: ErrorObject[] = [];
-
+      const errorAddTentant: ErrorObject[] = [];
 
       for(let tenant of body.tentants) {
-         const findTetant = await orm.findOne(Tenant, {
+         const findTetant: Tenant | null = await orm.findOne(Tenant, {
             id: tenant.tentantId,
          });
 
-         if(findTetants === null) findTetants.push({ field: tenant.tentantId, message: "Не найден!"  });
+         if(findTetant === null) errorAddTentant.push({ field: tenant.tentantId, message: "Не найден!"  });
 
-         findTetants.push(findTetant);
-
-         const findTentatIndexInObject: number = getObject.tentanstInfo?.findIndex(objTentant => objTentant.tentantId === tenant.tentantId);
-
-         if(findTentatIndexInObject < 0) {
-            getObject.tentanstInfo?.push(tenant);
-            
-            continue;
-         }
          else {
-            errorAddTentant.push({ 
+            const findIndexTentantInObject: number = getObject.tenantsInfo?.findIndex(objTentant => objTentant.tentantId === tenant.tentantId);
+         
+            if(findIndexTentantInObject < 0) {
+               getObject.tenantsInfo?.push(tenant);
+               getObject.tenants.add(findTetant);
+            }
+            else errorAddTentant.push({ 
                field: "tenant", 
-               message: `Арендатор ${tenant.tentantId} уже существует в обьекте! \n попробуйте отредактировать!` 
+               message: `Арендатор ${tenant.tentantId} уже существует в обьекте!`, 
             });
-
-            continue;
          }
       };
 
       if(errorAddTentant.length > 0) return responce.failureWithErrors({ set, errors: errorAddTentant }); 
 
-
-      getObject.tentants.add([...findTetants]);
-
       await orm.persist([getObject]).flush();
 
       return responce.successWithData({ set, data: getObject });
    };
-
-   async createNewTentant({ body, set, store }: TenantCreateNewRequest) {
-      const newTentant = new Tenant({
+   async createNewTentant({ body, set, store }: TenantCreateNewRequest): Promise<ResponceWithData<Tenant>> {
+      const newTentant: Tenant = new Tenant({
          name: body.name,
          logo: new Images(store.upload?.all.filename),
          category: body.category,
@@ -177,24 +168,45 @@ export class ApiController {
 
 
    // get
-   async getObjects({ set, params }: ObjectTypeRequest)  {
-      const getObjects = await orm.findAll(Objects, {
+   async getObjects({ set, params }: ObjectTypeRequest): Promise<ResponceWithData<Loaded<Objects, "images", "title" | "images" | "info" | "address" | "metro" | "price", never>[]>>  {
+      const getObjects: Loaded<Objects, "images", "title" | "images" | "info" | "address" | "metro" | "price", never>[] = await orm.findAll(Objects, {
          where: {
             type: !!params?.type ?
             params.type:
             { $ne: 'hidden' }
          },
-         populate: ['images', 'layoutImages']
+         fields: ['images', 'title', 'price', 'info', 'address', 'metro'],
+         populate: ['images'],
       });
-
-
       return responce.successWithData({ set, data: getObjects });
    }
-   async getTentant({ set }: CustomRequestParams) {
-      const allTentants = await orm.findAll(Tenant);
+   async getTentants({ set }: CustomRequestParams): Promise<ReponceWithoutData | ResponceWithData<Tenant[]>> {
+      const allTentants: Tenant[] | [] = await orm.findAll(Tenant);
 
       if(allTentants.length === 0) return responce.successWithoutData({ set });
  
       return responce.successWithData({ set, data: allTentants });
    };
+   async getObjectBySlug({ set, params }: ObjectSlugRequest): Promise<ResponceWithError<string> | ResponceWithData<Objects>> {
+      const getCurrentObject: Objects | null = await orm.findOne(Objects, {
+         slug: params.slug,
+      }, {
+         populate: ['*'],
+      });
+
+      if(!getCurrentObject) return responce.failureNotFound({ 
+         set, 
+         error: { 
+            field: 'slug', 
+            message: `Обьекта со слагом ${params.slug} не существует!` 
+         } 
+      });
+
+
+      return responce.successWithData({ set, data: getCurrentObject });
+   };
+
+
+   // patch
+   async editObject({}) {};
 };

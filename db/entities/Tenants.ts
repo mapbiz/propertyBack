@@ -11,7 +11,6 @@ import { Objects } from "./Object.ts";
 import { Images } from "./Images.ts";
 
 import type { Tenant as TenantType } from "../../types/tenant.types";
-import { EntityManager } from "@mikro-orm/mongodb";
 
 
 @Entity()
@@ -27,6 +26,7 @@ export class Tenant extends BaseEntity {
       entity: () => Images,
       owner: true,
       unique: false,
+      serializer: image => image.url,
    }) 
    logo!: Rel<Images>;
 

@@ -1,9 +1,9 @@
 import type { Context } from "elysia"; 
 
-export type ResponceWithData<T = unknown> = {
+export type ResponceWithData<T = unknown> = Promise<{
    data: T;
    ok: boolean;
-}; 
+}>; 
 export type ReponceWithoutData = ResponceWithData<null>; 
 export type ResponceWithErrors<T = unknown> = {
    errors: Array<ErrorObject<T>>;

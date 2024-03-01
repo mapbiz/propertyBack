@@ -2,17 +2,9 @@ import {
    Entity, 
    Property, 
    OneToMany, 
-   Collection, 
+   Collection,
    OnLoad,
-   BeforeCreate,
-   EntityManager,
-   Filter,
-   OnInit,
-   EntityRepository,
-   FilterQuery,
-   FindOptions,
-   Loaded,
-   BeforeUpdate,
+   wrap
 } from "@mikro-orm/mongodb";
 
 import type { 
@@ -34,11 +26,9 @@ type NeedsTypes = {
    payback?: number,
    price: Partial<ObjectPrice>,
    globalRentFlow: ObjectType['globalRentFlow'],
-   tentanstInfo?: Partial<ObjectTenantsInfo>,
 };
 const computedType = ({ payback, price, globalRentFlow }: NeedsTypes): TypeObject => {
    let rentEmpty = JSON.stringify(price.rent) === '{}',
-   // tentantsrentFlowEmpty = JSON.stringify(tentanstInfo?.rentFlow) === '{}',
    globalRentFlowEmpty = JSON.stringify(globalRentFlow) === '{}';
 
    if((!!payback && !globalRentFlowEmpty && !!price.global && !!price.profitability) && rentEmpty) return 'sale-business';
@@ -49,8 +39,9 @@ const computedType = ({ payback, price, globalRentFlow }: NeedsTypes): TypeObjec
    return 'hidden';
 };
 
+type CollectionImages = Collection<Images, object>;
 
-@Entity({ tableName: "Object" })
+@Entity({ tableName: "object" })
 export class Objects extends BaseEntity {
    @Property({ nullable: false, unique: false, default: "hidden" })
    public type?: TypeObject;
@@ -79,9 +70,13 @@ export class Objects extends BaseEntity {
    @Property({ nullable: true })
    public metro?: string;
 
-   @Property({ nullable: true, default: null, })
-   public tentanstInfo?: ObjectTenantsInfo[];
-   
+   @Property({ 
+      nullable: true, 
+      unique: false,
+      default: null,
+   })
+   public tenantsInfo?: ObjectTenantsInfo[];
+
    @Property({ nullable: true })
    public globalRentFlow: ObjectType['globalRentFlow'];
 
@@ -94,19 +89,71 @@ export class Objects extends BaseEntity {
    @Property({ nullable: false })
    public zone: boolean;
 
-
-   @OneToMany(() => Images, 'object', { unique: false })
+   @OneToMany(
+      () => Images, 
+      'object', 
+      { 
+         unique: false,
+         serializer: (images: CollectionImages) => {
+            return images.map(image => image.url);
+         }, 
+      }
+   )
    images = new Collection<Images>(this);
 
-   @OneToMany(() => Images, 'object', { unique: false })
+   @OneToMany(
+      () => Images, 
+      'object', 
+      { 
+         unique: false,
+         serializer: (layoutImage: CollectionImages) => {
+            return layoutImage.map(layoutImage => layoutImage.url);
+         }
+      }
+   )
    layoutImages = new Collection<Images>(this);
 
-   @OneToMany(() => Tenant, 'object', { unique: false, nullable: true, })
-   tentants = new Collection<Tenant>(this);
+   @OneToMany(
+      () => Tenant, 
+      'object', 
+      { 
+         unique: false, 
+         nullable: true, 
+         serializer: (tenants: Collection<Tenant, object>) => {
+            return tenants.map(tentant => {
+               return {
+                  id: tentant.id,
+                  name: tentant.name,
+                  category: tentant.category,
+                  logo: tentant.logo.url,
+               };
+            });
+         },
+      }
+   )
+   tenants = new Collection<Tenant>(this);
+   
+   toJSON(strict = true, strip, ...args: never[]) {
+      const resultObject: ObjectType & { tenants?: Collection<Tenant, object> } = wrap(this, true).toObject(...args);
+    
+      if(resultObject.type === 'sale-business' && resultObject.tenants?.length > 0 && resultObject.tenantsInfo?.length > 0) {
+         const tenantCompared = resultObject.tenantsInfo?.map(tentantInfo => {
+            const findTetant = resultObject.tenants?.find(objTentant => objTentant.id === tentantInfo?.tentantId);
 
-   @BeforeUpdate()
-   async onBeforeUpdate(): Promise<void> {
-      return;
+            return {
+               detalization: tentantInfo?.detalization,
+               indexation: tentantInfo?.indexation,
+               contract: tentantInfo?.contract,
+               rentFlow: tentantInfo?.rentFlow,
+               tentant: findTetant,
+            };
+         });
+
+         resultObject.tenantsInfo = tenantCompared;
+         delete resultObject.tenants;
+      };
+
+      return resultObject;
    };
 
    constructor({
@@ -116,7 +163,6 @@ export class Objects extends BaseEntity {
       info,
       address,
       globalRentFlow,
-      // tenantsInfo,
       payback,
       price,
       metro,
@@ -137,7 +183,8 @@ export class Objects extends BaseEntity {
       this.payback = payback;
       this.metro = metro;
       this.zone = zone; 
-      this.tentanstInfo = [];
+      this.tenantsInfo = [];
       this.type = computedType({ payback, price, globalRentFlow });
    };
 };
+

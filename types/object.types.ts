@@ -58,7 +58,7 @@ export type ObjectInfo = {
    hood: boolean;
 };
 export type ObjectTenantsInfo = {
-   tentantId: ObjectId;
+   tentantId: string;
    detalization: string[],
    indexation: number;
    contract: string;
@@ -87,7 +87,7 @@ export type Object = {
 
    
    // Только sale-business
-   tenantsInfo?: Partial<ObjectTenantsInfo>; 
+   tenantsInfo?: Partial<ObjectTenantsInfo[]>; 
    globalRentFlow?: {
       year: number;
       mouth: number;
@@ -157,5 +157,26 @@ export type ObjectAddNewTenantRequest = Pick<CustomRequestParams<
    },
    Context['set'],
    Context['request'],
+   Context['store'],
    { id: string }
 >, 'body' | 'set' | 'params'>
+export type ObjectSlugRequest = Pick<
+   CustomRequestParams<
+      Context['body'],
+      Context['set'],
+      Context['request'],
+      Context['store'],
+      { slug: string }
+   >,
+   'body' | 'params' | 'set'
+>;
+export type ObjectEditRequest = Pick<
+   CustomRequestParams<
+      Object,
+      Context['set'],
+      Context['request'],
+      StoreUpload,
+      { id: string }
+   >,
+   'body' | 'params' | 'set'
+>

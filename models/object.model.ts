@@ -22,7 +22,7 @@ export const objectModel = new Elysia()
    // Полностью переделать, получает трансформнутые значения
    createObject: t.Object({
       agentRemuneration: t.Optional(
-         t.Number(),
+         t.Numeric(),
       ),
       metro: t.Optional(
          t.String()
@@ -123,65 +123,35 @@ export const objectModel = new Elysia()
       panoramaLon: t.Optional(
          t.String()
       ),
-
-      title: t.Required(
-         t.String({
-            error: "Название должно быть строкой!"
-         }),
+      
+      title: t.String({
+         error: "Заголовок должен быть строкой!",
+      }),
+      description: t.String({
+         error: "Описание должно быть строкой!"
+      }),
+      address: t.String({
+         error: "Адрес обязан быть строкой!"
+      }),
+      zone: t.Union(
+         [
+            t.Literal("true"),
+            t.Literal("false"),
+         ],
          {
-            error: "Название обязательно для добавления обьекта"
+            error: "Должно быть либо true либо false!"
          }
       ),
-      description: t.Required(
-         t.String({
-            error: "Описание должно быть строкой!"
-         }),
-         { 
-            error: "Описание обязательно для добавления обьекта" 
-         }
-      ),
-      address: t.Required(
-         t.String({
-            error: "Адрес обязан быть строкой!"
-         }),
-         {
-            error: "Адрес обязателен для добавления обьекта"
-         }
-      ),
-      zone: t.Required(
-         t.Union(
-            [
-               t.Literal("true"),
-               t.Literal("false"),
-            ],
-            {
-               error: "Должно быть либо true либо false!"
-            }
-         ),
-         {
-            error: "Зона погрузки/разгрузки обязательна для заполнения!"
-         }
-      ),
-      photos: t.Required(
-         t.Files({
-            minItems: 1,
-            maxItems: 30, 
-            error: "Фоток не может быть меньше 1 или больше 30!"
-         }),
-         {
-            error: "Фотки обязательны для создания обьекта!"      
-         }
-      ),
-      photosLayout: t.Required(
-         t.Files({
-            minItems: 1,
-            maxItems: 30, 
-            error: "Фоток не может быть меньше 1 или больше 30!"
-         }),
-         {
-            error: "Фотки планировки обязательны для создания обьекта!"
-         }
-      )
+      photos: t.Files({
+         minItems: 1,
+         maxItems: 30, 
+         error: "Фоток не может быть меньше 1 или больше 30!"
+      }),
+      photosLayout: t.Files({
+         minItems: 1,
+         maxItems: 30, 
+         error: "Фоток не может быть меньше 1 или больше 30!"
+      }),
    }),
    addTentantObject: t.Array(
       t.Object({
