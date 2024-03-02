@@ -9,8 +9,8 @@ import serverLoggerPlugin from "./plugins/logger";
 import uploadFilePlugin from "./plugins/fileUpload";
 import nullableTransformPlugin from "./plugins/nullableTransform";
 
-import apiRouter from "../routes/api";
-import responce from "./helpers/responce";
+import apiRouter from "../routes/api.ts";
+import responce from "./helpers/responce.ts";
 
 const port: number = Bun.env.SERVER_PORT || 8080;
 
@@ -64,5 +64,7 @@ app.onError(({ error, code, set }) => {
 });
 
 app.listen(port, () => console.log(`Server run at: http://${app.server?.hostname}:${app.server?.port}`));
+
+console.log(Bun.env);
 
 export default app;
