@@ -133,11 +133,15 @@ export class Objects extends BaseEntity {
    )
    tenants = new Collection<Tenant>(this);
    
-   toJSON(strict = true, strip, ...args: never[]) {
-      const resultObject: ObjectType & { tenants?: Collection<Tenant, object> } = wrap(this, true).toObject(...args);
-    
+   // @ts-ignore
+   toJSON(strict = true, strip: unknown, ...args: never[]) {
+      const resultObject = wrap(this, true).toObject([...args]);
+      
+      // @ts-ignore
       if(resultObject.type === 'sale-business' && resultObject.tenants?.length > 0 && resultObject.tenantsInfo?.length > 0) {
+         // @ts-ignore
          const tenantCompared = resultObject.tenantsInfo?.map(tentantInfo => {
+            // @ts-ignore
             const findTetant = resultObject.tenants?.find(objTentant => objTentant.id === tentantInfo?.tentantId);
 
             return {
@@ -149,7 +153,9 @@ export class Objects extends BaseEntity {
             };
          });
 
+         // @ts-ignore
          resultObject.tenantsInfo = tenantCompared;
+         // @ts-ignore
          delete resultObject.tenants;
       };
 
