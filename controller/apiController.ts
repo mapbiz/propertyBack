@@ -62,16 +62,10 @@ export class ApiController {
             lat: body.panoramaLat,
             lon: body.panoramaLon,
          },
-         // tenantsInfo: {
-         //    rentFlow: {
-         //       year: body.tenantsInfoRentFlowYear,
-         //       mount: body.tenantsInfoRentFlowMount,
-         //    },
-         //    dateContractRents: body.tenantsInfoDateContractRents,
-         // },
          info: {
             square: body.infoSquare,
             floor: body.infoFloor,
+            force: body.infoForce,
             ceilingHeight: (!body.infoFrom && !body.infoTo) ? body.infoCeilingHeight: {
                to: body.infoTo,
                from: body.infoFrom,
@@ -175,7 +169,7 @@ export class ApiController {
             params.type:
             { $ne: 'hidden' }
          },
-         fields: ['images', 'title', 'price', 'info', 'address', 'metro'],
+         fields: ['images', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro'],
          populate: ['images'],
       });
       return responce.successWithData({ set, data: getObjects });
@@ -206,7 +200,87 @@ export class ApiController {
       return responce.successWithData({ set, data: getCurrentObject });
    };
 
-
    // patch
-   async editObject({}) {};
+   async editObject({body, set, params, store, request}: CustomRequestParams) {
+      delete body.photos;
+      delete body.photosLayout;
+
+      let editableObject: Objects | null = await orm.findOne(Objects, {
+         id: params.id,
+      }, {
+         exclude: ["tenants", "tenantsInfo"],
+         populate: ["layoutImages", "images"],
+      });
+
+      if(editableObject === null) return responce.failureNotFound({ set, error: { field: "id", message: `Обьект ${params.id} не найден!` } });
+
+      if(!!store.upload?.photos) {
+         const newImages = Array.isArray(store.upload.photos) ? 
+         store.upload.photos.map(uploadedPhoto => new Images(uploadedPhoto.filename))
+         :
+         [new Images(store.upload.photos.filename)];
+      
+
+         request.method === 'patch' ? editableObject.images.add(newImages): editableObject.images.set(newImages);
+      };
+      if(!!store.upload.photosLayout) {
+         const newLayoutImages = Array.isArray(store.upload.photosLayout) ?
+         store.upload.photosLayout.map(uploadLayoutPhoto => new Images(uploadLayoutPhoto.filename))
+         :
+         [new Images(store.upload.photosLayout.filename)];
+
+
+         request.method === 'patch' ? editableObject.layoutImages.add(newLayoutImages): editableObject.layoutImages.set(newLayoutImages);
+      };
+
+      editableObject = {
+         ...editableObject,
+         id: (editableObject._id as string),
+         title: body.title,
+         description: body.description,
+         address: body.address,
+         metro: body.metro,
+         payback: body.payback,
+         zone: body.zone,
+         globalRentFlow: {
+            year: body.globalRentFlowYear,
+            mouth: body.globalRentFlowMouth,
+         },
+         price: {
+            square: body.priceSquare,
+            profitability: body.priceProfitability,
+            global: body.priceGlobal,
+            rent: {
+               year: body.priceRentYear,
+               mouth: body.priceRentMouth,
+            },
+         },
+         panorama: {
+            lat: body.panoramaLat,
+            lon: body.panoramaLon,
+         },
+         info: {
+            square: body.infoSquare,
+            floor: body.infoFloor,
+            ceilingHeight: (!body.infoFrom && !body.infoTo) ? body.infoCeilingHeight: {
+               to: body.infoTo,
+               from: body.infoFrom,
+            }, 
+            countEntrance: body.infoCountEntrance,
+            glazing: body.infoGlazzing,
+            typeWindow: body.infoTypeWindow,
+            layout: body.infoLayout,
+            enter: body.infoEnter,
+            finishing: body.infoFinishing,
+            hood: body.infoHood,
+         },
+      };
+
+
+      await orm.flush(); 
+
+      delete editableObject._id;
+
+      return responce.successWithData({ set, data: editableObject });
+   };
 };

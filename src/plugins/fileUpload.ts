@@ -17,6 +17,8 @@ const uploadFilePlugin: Elysia = new Elysia()
 .onBeforeHandle(async ({ request, body, store }) => {
    if(safeMethods.includes(request.method)) return;
 
+   console.log(body);
+
    // Если formData не пришла то не обрабатывать
    if(!request.headers.get('content-type')?.split(";").includes('multipart/form-data')) return;
 

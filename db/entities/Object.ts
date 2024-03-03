@@ -58,6 +58,9 @@ export class Objects extends BaseEntity {
    @Property({ nullable: true })
    public panorama: Panorama;
 
+   @Property({ nullable: true })
+   public coordinates: Panorama;
+
    @Property({ nullable: false })
    public price: ObjectPrice;
 
@@ -173,12 +176,14 @@ export class Objects extends BaseEntity {
       price,
       metro,
       agentRemuneration,
+      coordinates,
       zone,
    }: Omit<ObjectType, 'type'>) {
       super();
 
       this.title = title;
       this.slug = slug(title);
+      this.coordinates = coordinates;
       this.description = description;
       this.globalRentFlow = globalRentFlow;
       this.agentRemuneration = agentRemuneration;

@@ -14,6 +14,8 @@ import { ApiController } from "../controller/apiController";
 const controller: ApiController = new ApiController();
 
 
+import {CustomError} from "../src/helpers/error";
+
 // get
 router
 .use(objectModel)
@@ -23,7 +25,6 @@ router
 .get('/objects/:type', controller.getObjects, {
    params: 'getObject',
 })
-
 
 
 // post object
@@ -107,6 +108,12 @@ router
    type: 'multipart/form-data',
 });
 
-
+// patch object
+router
+.use(objectModel)
+.patch('/object/:id', controller.editObject, {
+   params: 'editObjectParams',
+   body: 'editObjectBody',
+})
 
 export default router;

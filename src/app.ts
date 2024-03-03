@@ -11,6 +11,7 @@ import nullableTransformPlugin from "./plugins/nullableTransform";
 
 import apiRouter from "../routes/api.ts";
 import responce from "./helpers/responce.ts";
+import { ErrorObject } from "../types/responce.types.ts";
 
 const port: number = Bun.env.SERVER_PORT || 8080;
 
@@ -25,11 +26,41 @@ if(Bun.env.NODE_ENV === 'development') {
       documentation: {
          info: {
             title: "api docs",
-            version: "0.8.5"
+            version: "0.8.9"
          },
       },
    }))
 };
+
+// Хенделинг
+app.onError(({ error, code, set }) => {
+
+   switch(code) {
+      case "UNKNOWN":
+         if(!!error?.error) 
+            return responce.failureWithError({ 
+               set, 
+               error: {
+                  field: error.error.path,
+                  message: error.error.schema.error,
+               }  
+            });
+
+         else return responce.failureWithReason({ set, reason: "test Неизвестная ошибка!", statusCode: 500, });
+      case "VALIDATION":
+         return responce.failureWithErrors({ 
+            set, 
+            errors: error.all.map(err => {
+               return {
+                  field: err.path,
+                  message: err.schema.error,
+               }
+            }) 
+         });
+   };
+
+});
+
 
 // Плагины
 app.use(staticPlugin({
@@ -45,26 +76,6 @@ app.use(nullableTransformPlugin);
 // Все пути с префиксами
 app.use(apiRouter);
 
-
-// Хенделинг
-app.onError(({ error, code, set }) => {
-   switch(code) {
-      case "VALIDATION":   
-         const errors = error.all.map(err => {
-            return {
-               field: err.path,
-               message: err.schema.error,
-            };
-         });
-
-      return responce.failureWithErrors({ set, errors });
-      case "UNKNOWN": 
-      return responce.failureWithReason({ set, reason: "Неизвестная ошибка сервера!", statusCode: 500 });
-   };
-});
-
 app.listen(port, () => console.log(`Server run at: http://${app.server?.hostname}:${app.server?.port}`));
-
-console.log(Bun.env);
 
 export default app;

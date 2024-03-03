@@ -43,9 +43,13 @@ colorsOfMethods = (method: string) => {
 
 const serverLoggerPlugin = new Elysia()
 .decorate('loggerPlugin', { serverResponce, serverRequest, serverError, serverFatalError })
-.onError(({ code, error }) => {
-   serverFatalError.fatal({ errorCodeOfElysia: code, errorStack: error});
-   if(code !== 'VALIDATION') serverError.error(error, code);
+.onError((params) => {
+   const { code, error } = params;
+
+   if(code !== 'VALIDATION' && !!code) {
+      serverError.error(error, code);
+      serverFatalError.fatal({ errorCodeOfElysia: code, errorStack: error});
+   }
 })
 .onRequest(({ loggerPlugin: { serverRequest }, request, set: { status } }) => {
    serverRequest.info(`${request.url} ${colorsOfMethods(request.method)}  ${colorsOfStatuses(status)}`);
