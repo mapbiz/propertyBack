@@ -46,6 +46,8 @@ const serverLoggerPlugin = new Elysia()
 .onError((params) => {
    const { code, error } = params;
 
+   console.log(code);
+
    if(code !== 'VALIDATION' && !!code) {
       serverError.error(error, code);
       serverFatalError.fatal({ errorCodeOfElysia: code, errorStack: error});

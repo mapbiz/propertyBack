@@ -1,7 +1,3 @@
-import { t } from "elysia";
+import { t, Elysia } from "elysia";
 
-
-export const NormalNumeric = (options: typeof t.String) => t.String({
-   format: 'numeric',
-   ...options,
-});
+const 

@@ -6,7 +6,7 @@ import type { ObjectId } from "@mikro-orm/mongodb";
 
 export type TypeObject = 'sale' | 'rent' | 'sale-business' | 'hidden';
 
-export type Panorama = {
+export type Coordinates = {
    lat: number;
    lon: number;
 };
@@ -47,12 +47,9 @@ export type ObjectInfo = {
    glazing: number;
    typeWindow: string;
    layout: string;
-   ceilingHeight: {
-      from: number;
-      to: number;
-   } | number;
+   ceilingHeight: string;
    enter: string; 
-   force: string;
+   force: number;
    finishing: string;
    // Вытяжка
    hood: boolean;
@@ -76,7 +73,9 @@ export type Object = {
    description: string;
    images: Omit<Image, 'id'>[];
    layoutImages: Omit<Image, 'id'>[];
-   panorama: Panorama;
+   panorama: Coordinates;
+   coordinates: Coordinates;
+
    agentRemuneration?: number;
    zone: boolean;
 
@@ -101,7 +100,7 @@ export type Object = {
    type: TypeObject;
 };
 
-export type ObjectRequest = Omit<Object, 'slug' | 'info' | 'tentantsInfo' | 'price' | 'type' | 'panorama'> 
+export type ObjectRequest = Omit<Object, 'slug' | 'info' | 'tentantsInfo' | 'price' | 'type' | 'panorama' | 'coordinates'> 
 & {
    // info
    infoSquare: number; 
@@ -109,11 +108,10 @@ export type ObjectRequest = Omit<Object, 'slug' | 'info' | 'tentantsInfo' | 'pri
    infoLayout: string;
    infoCountEntrance?: number;
    infoEnter: string;
-   infoCeilingHeight?: number;
+   infoCeilingHeight?: string;
    infoFinishing: string;
-   infoTo?: number;
    infoFloor?: number;
-   infoFrom?: number;
+   infoForce: number;
    infoGlazzing?: number
    infoHood: boolean;
 
@@ -128,6 +126,11 @@ export type ObjectRequest = Omit<Object, 'slug' | 'info' | 'tentantsInfo' | 'pri
    tenantsInfoRentFlowMount: number;
    tenantsInfoRentFlowYear: number;
    tenantsInfoDateContractRents: number;
+
+
+   // coordinates
+   lat: number;
+   lon: number;
 
    // panorama 
    panoramaLat: number; 

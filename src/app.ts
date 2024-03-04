@@ -11,7 +11,8 @@ import nullableTransformPlugin from "./plugins/nullableTransform";
 
 import apiRouter from "../routes/api.ts";
 import responce from "./helpers/responce.ts";
-import { ErrorObject } from "../types/responce.types.ts";
+
+import { uniqBy } from "./helpers/uniq.ts";
 
 const port: number = Bun.env.SERVER_PORT || 8080;
 
@@ -34,8 +35,9 @@ if(Bun.env.NODE_ENV === 'development') {
 
 // Хенделинг
 app.onError(({ error, code, set }) => {
-
    switch(code) {
+      case "NOT_FOUND":
+      return responce.failureNotFound({ set, error: { field: "url", message: "Не найдено!" } });
       case "UNKNOWN":
          if(!!error?.error) 
             return responce.failureWithError({ 
@@ -46,16 +48,21 @@ app.onError(({ error, code, set }) => {
                }  
             });
 
-         else return responce.failureWithReason({ set, reason: "test Неизвестная ошибка!", statusCode: 500, });
+         else return responce.failureWithReason({ set, reason: "Неизвестная ошибка!", statusCode: 500, });
       case "VALIDATION":
          return responce.failureWithErrors({ 
             set, 
-            errors: error.all.map(err => {
-               return {
-                  field: err.path,
-                  message: err.schema.error,
-               }
-            }) 
+            errors: uniqBy(
+               error.all
+               .map(err => {
+                  return {
+                     field: err.path,
+                     message: err.schema.error,
+                  }
+               })
+               .filter(err => !!err.field),
+               'message',
+            )
          });
    };
 
@@ -70,7 +77,7 @@ app.use(staticPlugin({
 // Собственные плагины
 app.use(uploadFilePlugin);
 app.use(serverLoggerPlugin);
-app.use(nullableTransformPlugin);
+// app.use(nullableTransformPlugin);
 
 
 // Все пути с префиксами

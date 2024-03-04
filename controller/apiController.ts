@@ -38,6 +38,7 @@ export class ApiController {
          },
       })
 
+      // @ts-ignore
       const newObject: Objects = new Objects({
          title: body.title,
          description: body.description,
@@ -45,6 +46,10 @@ export class ApiController {
          metro: body.metro,
          payback: body.payback,
          zone: body.zone,
+         coordinates: {
+            lat: body.lat,
+            lon: body.lon,
+         },
          globalRentFlow: {
             year: body.globalRentFlowYear,
             mouth: body.globalRentFlowMouth,
@@ -66,10 +71,7 @@ export class ApiController {
             square: body.infoSquare,
             floor: body.infoFloor,
             force: body.infoForce,
-            ceilingHeight: (!body.infoFrom && !body.infoTo) ? body.infoCeilingHeight: {
-               to: body.infoTo,
-               from: body.infoFrom,
-            }, 
+            ceilingHeight: body.infoCeilingHeight, 
             countEntrance: body.infoCountEntrance,
             glazing: body.infoGlazzing,
             typeWindow: body.infoTypeWindow,
@@ -78,7 +80,6 @@ export class ApiController {
             finishing: body.infoFinishing,
             hood: body.infoHood,
          },
-
       });
 
       
@@ -201,6 +202,35 @@ export class ApiController {
    };
 
    // patch
+   async editTentant({ body, set, params, store }: Partial<TenantCreateNewRequest> & { params: { id: string } }) {
+      !!body?.logo ? delete body.logo: null;
+
+      let editableTentant: Tenant | null = await orm.findOne(Tenant, {
+         id: params.id,
+      });
+
+      if(!editableTentant) return responce.failureNotFound({ 
+         set,
+         error: {
+            field: "id",
+            message: `Арендатор ${params.id} не найден!`,
+         }
+      });
+
+      if(!!store?.upload.logo) {
+         const newLogo: Images = new Images(store.upload.logo.filename);
+
+         editableTentant.logo = newLogo;
+      };
+
+      editableTentant.name = body?.name;
+      editableTentant.category = body?.category;
+
+      await orm.persistAndFlush([editableTentant]); 
+
+      return responce.successWithData({ set, data: editableTentant });
+
+   };
    async editObject({body, set, params, store, request}: CustomRequestParams) {
       delete body.photos;
       delete body.photosLayout;
@@ -262,10 +292,7 @@ export class ApiController {
          info: {
             square: body.infoSquare,
             floor: body.infoFloor,
-            ceilingHeight: (!body.infoFrom && !body.infoTo) ? body.infoCeilingHeight: {
-               to: body.infoTo,
-               from: body.infoFrom,
-            }, 
+            ceilingHeight: body.infoCeilingHeight,  
             countEntrance: body.infoCountEntrance,
             glazing: body.infoGlazzing,
             typeWindow: body.infoTypeWindow,

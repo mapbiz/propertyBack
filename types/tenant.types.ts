@@ -7,7 +7,7 @@ import { Images } from "../db/entities/Images";
 export type Tenant = {
    name: string; 
    category: string;
-   logo: Images,
+   logo: Images;
 };
 
 export type TenantCreateNewRequest = Pick<

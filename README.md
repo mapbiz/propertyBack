@@ -5,7 +5,8 @@
 2. [Внутренние плагины](#plugins)
 	1. [Загрузка файлов](#plugins-file)
 	2. [Логирование](#plugins-logger)
-	3. [Очистка нулей](#plugins-nullable)
+	3. ~~[Очистка нулей](#plugins-nullable)~~ 
+	   > Удален
 
 
 <h1  id="deploy"> Разворот </h1>
@@ -52,7 +53,8 @@ bun run start  # product
 
 * [Загрузка файлов](#plugins-file)
 * [Логирование](#plugins-logger)
-* [Очистка нулевых значений](#plugins-nullable)
+* ~~[Очистка нулевых значений](#plugins-nullable)~~
+> Удален
 
 <h3  id="plugins-file"> Загрузка файлов </h3>
 Из-за баганной работы [multer](https://www.npmjs.com/package/multer) с **bun** и **Elysia** сервером непосредственно
@@ -146,7 +148,9 @@ app.post('/test', ({ store: File | File[] }) => {
 
 Логирование сделано на [log4js](https://www.npmjs.com/package/log4js)
 
-<h3 id="plugins-nullable"> Очистка нулевых значений </h3>
+<h3 id="plugins-nullable"> <del>Очистка нулевых значений</del> </h3>
+
+> Полностью удален
 
 **Elysia** Работает на системе [хуков](https://elysiajs.com/essential/life-cycle.html)  
 Одним из таких хуков роута является `onBeforeHandle()` хук, до выдачи route данные в `body`

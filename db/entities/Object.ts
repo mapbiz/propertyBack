@@ -4,7 +4,8 @@ import {
    OneToMany, 
    Collection,
    OnLoad,
-   wrap
+   wrap,
+   Opt
 } from "@mikro-orm/mongodb";
 
 import type { 
@@ -12,7 +13,7 @@ import type {
    Object as ObjectType, 
    ObjectInfo, 
    ObjectTenantsInfo, 
-   Panorama, 
+   Coordinates, 
    ObjectPrice, 
 } from "../../types/object.types.ts"; 
 
@@ -52,17 +53,17 @@ export class Objects extends BaseEntity {
    @Property({ nullable: false, unique: true })
    public slug: string;
 
-   @Property({ nullable: false })
-   public description: string;
+   @Property({ nullable: true, unique: false })
+   public description?: string;
 
    @Property({ nullable: true })
-   public panorama: Panorama;
+   public panorama: Coordinates;
 
    @Property({ nullable: true })
-   public coordinates: Panorama;
+   public coordinates: Coordinates;
 
    @Property({ nullable: false })
-   public price: ObjectPrice;
+   public price: Partial<ObjectPrice>;
 
    @Property({ nullable: true })
    public info: Partial<ObjectInfo>;
@@ -70,7 +71,7 @@ export class Objects extends BaseEntity {
    @Property({ nullable: false })
    public address?: string;
 
-   @Property({ nullable: true })
+   @Property({ nullable: true, default: null })
    public metro?: string;
 
    @Property({ 
@@ -83,13 +84,13 @@ export class Objects extends BaseEntity {
    @Property({ nullable: true })
    public globalRentFlow: ObjectType['globalRentFlow'];
 
-   @Property({ nullable: true })
+   @Property({ nullable: true, })
    public payback?: number;
 
-   @Property({ nullable: true })
+   @Property({ nullable: true, default: null })
    public agentRemuneration?: number;
 
-   @Property({ nullable: false })
+   @Property({ nullable: false, default: null })
    public zone: boolean;
 
    @OneToMany(
