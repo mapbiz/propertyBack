@@ -118,6 +118,9 @@ export const objectModel = new Elysia()
             ),
 
             // photos
+            photoMap: t.File({
+               error: "Фотка карты, должна быть фоткой!"
+            }),
             photos: t.Files({
                minItems: 1,
                maxItems: 30,
@@ -223,6 +226,9 @@ export const objectModel = new Elysia()
             globalRentFlowMouth: t.Numeric({ error: "Месячный арендный поток может быть только нумероподобным числом!" }),
             
             // photos
+            photoMap: t.File({
+               error: "Фотка карты, должна быть фоткой!"
+            }),
             photos: t.Files({
                minItems: 1,
                maxItems: 30,

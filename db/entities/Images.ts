@@ -23,6 +23,16 @@ export class Images extends BaseEntity {
       unique: false,
    })
    object!: Objects;
+   
+   @OneToOne({
+      eager: true,
+      entity: () => Objects,
+      owner: false,
+      default: null,
+      mappedBy: 'imageMap',
+      mapToPk: true,
+   })
+   objectMapField!: Objects;
 
    @OneToOne({
       eager: true, 

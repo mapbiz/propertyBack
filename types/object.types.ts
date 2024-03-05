@@ -3,6 +3,7 @@ import type { Context } from "elysia";
 import type { StoreUpload } from "./fileUpload.types"; 
 import type { CustomRequestParams } from "./request.types";
 import type { ObjectId } from "@mikro-orm/mongodb";
+import { Images } from "../db/entities/Images";
 
 export type TypeObject = 'sale' | 'rent' | 'sale-business' | 'hidden';
 
@@ -73,6 +74,7 @@ export type Object = {
    description: string;
    images: Omit<Image, 'id'>[];
    layoutImages: Omit<Image, 'id'>[];
+   imageMap: Images,
    panorama: Coordinates;
    coordinates: Coordinates;
 
@@ -180,6 +182,12 @@ export type ObjectEditRequest = Pick<
       Context['request'],
       StoreUpload,
       { id: string }
+   >,
+   'body' | 'params' | 'set'
+>;
+export type ObjectDeleteTentantInObject = Pick<
+   CustomRequestParams<
+      
    >,
    'body' | 'params' | 'set'
 >

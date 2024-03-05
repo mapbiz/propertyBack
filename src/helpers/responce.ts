@@ -95,7 +95,7 @@ export default {
 
       return {
          ok: false,
-         error,
+         error
       };
    },
 };

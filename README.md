@@ -54,7 +54,7 @@ bun run start  # product
 * [Загрузка файлов](#plugins-file)
 * [Логирование](#plugins-logger)
 * ~~[Очистка нулевых значений](#plugins-nullable)~~
-> Удален
+  > Удален
 
 <h3  id="plugins-file"> Загрузка файлов </h3>
 Из-за баганной работы [multer](https://www.npmjs.com/package/multer) с **bun** и **Elysia** сервером непосредственно

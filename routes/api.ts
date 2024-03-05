@@ -111,4 +111,37 @@ router
    body: 'editTentant',
 });
 
+// delete
+router
+.delete('/object/:id', controller.deleteObject, {
+   params: t.Object(
+      {
+         id: t.String({ error: "id обязателен для удаления обьекта" })
+      },
+      {
+         error: "Такой параметр не предусмотрен в запросе!"
+      }
+   ),
+})
+.delete('/tentant/:id', controller.deleteTentant, {
+   params: t.Object(
+      {
+         id: t.String({ error: "id обязателен для удаления арендодатора!" })
+      },
+      {
+         error: "Такой параметр не предусмотрен в запросе!",
+      }
+   )
+})
+.delete('/object/remove-tentant/:id', controller.deleteTentantInObject, {
+   params: t.Object(
+      {
+         id: t.String({ error: "id обязателен для удаления арендодатора из обьекта!" })
+      },
+      {
+         error: "Такой параметр не предусмотрен в запросе!",
+      }
+   )
+});
+
 export default router;

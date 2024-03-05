@@ -8,14 +8,18 @@ import type { TenantCreateNewRequest } from "../types/tenant.types";
 import { ObjectCreateNewRequest, ObjectTypeRequest, ObjectAddNewTenantRequest, ObjectTenantsInfo, ObjectSlugRequest } from "../types/object.types";
 import { CustomRequestParams } from "../types/request.types"; 
 
+import { objectEmptyFilter } from "../src/helpers/filter";
+import { objectRenameFields, dottedFieldToNestedObject } from "../src/helpers/converTo";
+
 import orm from "../db";
 import { Objects } from "../db/entities/Object"; 
 import { Images } from "../db/entities/Images";
 import { Tenant } from "../db/entities/Tenants"; 
 
 import responce from "../src/helpers/responce";
-import { Loaded } from "@mikro-orm/core";
+import { Loaded, wrap } from "@mikro-orm/core";
 
+import { slug } from "../src/helpers/slug";
 
 export class ApiController {
 
@@ -46,6 +50,7 @@ export class ApiController {
          metro: body.metro,
          payback: body.payback,
          zone: body.zone,
+         imageMap: new Images(store.upload.photoMap.filename),
          coordinates: {
             lat: body.lat,
             lon: body.lon,
@@ -203,7 +208,7 @@ export class ApiController {
 
    // patch
    async editTentant({ body, set, params, store }: Partial<TenantCreateNewRequest> & { params: { id: string } }) {
-      !!body?.logo ? delete body.logo: null;
+      delete body.logo;
 
       let editableTentant: Tenant | null = await orm.findOne(Tenant, {
          id: params.id,
@@ -223,91 +228,182 @@ export class ApiController {
          editableTentant.logo = newLogo;
       };
 
-      editableTentant.name = body?.name;
-      editableTentant.category = body?.category;
+      wrap(editableTentant).assign(
+         {
+         ...objectEmptyFilter(body, [Object.keys(body)]),
+         },
+         { em: orm },
+      );
 
-      await orm.persistAndFlush([editableTentant]); 
+      await orm.flush();
 
       return responce.successWithData({ set, data: editableTentant });
 
    };
    async editObject({body, set, params, store, request}: CustomRequestParams) {
-      delete body.photos;
-      delete body.photosLayout;
+      try {
+         delete body.photos;
+         delete body.photoMap;
+         delete body.photosLayout;
 
-      let editableObject: Objects | null = await orm.findOne(Objects, {
+         let editableObject: Objects | null = await orm.findOne(Objects, {
+            id: params.id,
+         }, {
+            populate: ["layoutImages", "imageMap", "images", "tenants"],
+         });
+
+         if(editableObject === null) return responce.failureNotFound({ set, error: { field: "id", message: `Обьект ${params.id} не найден!` } });
+
+         if(!!store.upload?.photos) {
+            const newImages = Array.isArray(store.upload.photos) ? 
+            store.upload.photos.map(uploadedPhoto => new Images(uploadedPhoto.filename))
+            :
+            [new Images(store.upload.photos.filename)];
+         
+
+            request.method === 'patch' ? editableObject.images.add(newImages): editableObject.images.set(newImages);
+         };
+         if(!!store.upload.photosLayout) {
+            const newLayoutImages = Array.isArray(store.upload.photosLayout) ?
+            store.upload.photosLayout.map(uploadLayoutPhoto => new Images(uploadLayoutPhoto.filename))
+            :
+            [new Images(store.upload.photosLayout.filename)];
+
+
+            request.method === 'patch' ? editableObject.layoutImages.add(newLayoutImages): editableObject.layoutImages.set(newLayoutImages);
+         };
+         if(!!store.upload.photoMap) editableObject.imageMap = new Images(store.upload.photoMap.filename);
+         
+         const clearEmptyFields = objectEmptyFilter(body, [Object.keys(body)]),
+         renameBody = dottedFieldToNestedObject(
+            objectRenameFields({
+               // price
+               "priceSquare": "price.square",
+               "priceGlobal": "price.global",
+               "priceProfitability": "price.profitability",
+               "priceRentYear": "price.rent.year",
+               "priceRentMouth": "price.rent.mouth",
+
+               // globalRentFlow
+               "globalRentFlowYear": "globalRentFlow.year",
+               "globalRentFlowMouth": "globalRentFlow.mouth",
+
+               // panorama
+               "panoramaLat": "panorama.lat",
+               "panoramaLon": "panorama.lon",
+
+               // info
+               "infoSquare": "info.square",
+               "infoFloor": "info.floor",
+               "infoCeilingHeight": "info.ceilingHeight",
+               "infoCountEntrance": "info.countEntrance",
+               "infoGlazzing": "info.glazing",
+               "infoTypeWindow": "info.typeWindow",
+               "infoLayout": "info.layout",
+               "infoFinishing": "info.finishing",
+               "infoEnter": "info.enter",
+               "infoHood": "info.hood",
+            }, clearEmptyFields),
+            [
+               // price
+               "price.square",
+               "price.global",
+               "price.profitability",
+               "price.rent.year",
+               "price.rent.mouth",
+
+               // info
+               "info.square",
+               "info.floor",
+               "info.ceilingHeight",
+               "info.countEntrance",
+               "info.glazing",
+               "info.typeWindow",
+               "info.layout",
+               "info.finishing",
+               "info.enter",
+               "info.hood",
+
+               // globalRentFlow
+               "globalRentFlow.year",
+               "globalRentFlow.mouth",
+
+               // panorama
+               "panorama.lat",
+               "panorama.lon",
+            ],
+         );
+         
+         wrap(editableObject).assign(renameBody, { em: orm });
+         
+         if(body?.title !== undefined) {
+            wrap(editableObject).assign({
+               slug: slug(body.title),
+            }, { em: orm });
+         };
+
+         await orm.flush();
+
+         return responce.successWithData({ set, data: editableObject });
+      }
+      catch(err) {
+         console.log(err);
+      };
+   };
+
+   // delete 
+   async deleteObject({ set, params }: Pick<
+      CustomRequestParams<
+      Context['body'], 
+      Context['set'], 
+      Context['store'], 
+      Context['request'], 
+      { id: string }
+      >, 
+      'set' | 'params'>
+   ): Promise<ReponceWithoutData | ResponceWithError<string>> {
+      const getObjectToDelete: Objects | null = await orm.findOne(Objects, {
          id: params.id,
-      }, {
-         exclude: ["tenants", "tenantsInfo"],
-         populate: ["layoutImages", "images"],
       });
 
-      if(editableObject === null) return responce.failureNotFound({ set, error: { field: "id", message: `Обьект ${params.id} не найден!` } });
-
-      if(!!store.upload?.photos) {
-         const newImages = Array.isArray(store.upload.photos) ? 
-         store.upload.photos.map(uploadedPhoto => new Images(uploadedPhoto.filename))
-         :
-         [new Images(store.upload.photos.filename)];
-      
-
-         request.method === 'patch' ? editableObject.images.add(newImages): editableObject.images.set(newImages);
-      };
-      if(!!store.upload.photosLayout) {
-         const newLayoutImages = Array.isArray(store.upload.photosLayout) ?
-         store.upload.photosLayout.map(uploadLayoutPhoto => new Images(uploadLayoutPhoto.filename))
-         :
-         [new Images(store.upload.photosLayout.filename)];
-
-
-         request.method === 'patch' ? editableObject.layoutImages.add(newLayoutImages): editableObject.layoutImages.set(newLayoutImages);
-      };
-
-      editableObject = {
-         ...editableObject,
-         id: (editableObject._id as string),
-         title: body.title,
-         description: body.description,
-         address: body.address,
-         metro: body.metro,
-         payback: body.payback,
-         zone: body.zone,
-         globalRentFlow: {
-            year: body.globalRentFlowYear,
-            mouth: body.globalRentFlowMouth,
+      if(!getObjectToDelete) return responce.failureNotFound({
+         set,
+         error: {
+            field: 'id',
+            message: `Обьект ${params.id} не найден!`
          },
-         price: {
-            square: body.priceSquare,
-            profitability: body.priceProfitability,
-            global: body.priceGlobal,
-            rent: {
-               year: body.priceRentYear,
-               mouth: body.priceRentMouth,
-            },
-         },
-         panorama: {
-            lat: body.panoramaLat,
-            lon: body.panoramaLon,
-         },
-         info: {
-            square: body.infoSquare,
-            floor: body.infoFloor,
-            ceilingHeight: body.infoCeilingHeight,  
-            countEntrance: body.infoCountEntrance,
-            glazing: body.infoGlazzing,
-            typeWindow: body.infoTypeWindow,
-            layout: body.infoLayout,
-            enter: body.infoEnter,
-            finishing: body.infoFinishing,
-            hood: body.infoHood,
-         },
-      };
+      });
 
+      await orm.removeAndFlush(getObjectToDelete);
 
-      await orm.flush(); 
-
-      delete editableObject._id;
-
-      return responce.successWithData({ set, data: editableObject });
+      return responce.successWithoutData({ set });
    };
+   async deleteTentant({ set, params }: Pick<
+      CustomRequestParams<
+      Context['body'], 
+      Context['set'], 
+      Context['store'], 
+      Context['request'], 
+      { id: string }
+      >, 
+      'set' | 'params'>
+   ): Promise<ReponceWithoutData | ResponceWithError<string>> {
+      const getTentantToDelete: Tenant | null = await orm.findOne(Tenant, {
+         id: params.id,
+      });
+
+
+      if(!getTentantToDelete) return responce.failureNotFound({
+         set,
+         error: {
+            field: 'id',
+            message: `Арендатор ${params.id} не найден!`
+         },
+      });
+
+      await orm.removeAndFlush(getTentantToDelete);
+
+      return responce.successWithoutData({ set });
+   };
+   async deleteTentantInObject({  })
 };

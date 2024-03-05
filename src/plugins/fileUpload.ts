@@ -17,8 +17,6 @@ const uploadFilePlugin: Elysia = new Elysia()
 .onBeforeHandle(async ({ request, body, store }) => {
    if(safeMethods.includes(request.method)) return;
 
-   console.log(body);
-
    // Если formData не пришла то не обрабатывать
    if(!request.headers.get('content-type')?.split(";").includes('multipart/form-data')) return;
 
@@ -95,27 +93,27 @@ const uploadFilePlugin: Elysia = new Elysia()
 
    // @ts-ignore
    store.upload.all = uploadedImages.length > 1 ? uploadedImages: uploadedImages[0];
-   if(uploadedImages.length > 1) {
-      let fieldsStore: {
-         [key: string]: File[],
-      } = {};
-      
-      uploadedImages.forEach(uploadImage => {
-         if(Array.isArray(fieldsStore[uploadImage.field])) fieldsStore[uploadImage.field].push(uploadImage);
-         else fieldsStore[uploadImage.field] = [uploadImage];
-      });
 
-      for(let field in fieldsStore) {
-         const currentField = fieldsStore[field];
+   let fieldsStore: {
+      [key: string]: File[],
+   } = {};
+   
+   uploadedImages.forEach(uploadImage => {
+      if(Array.isArray(fieldsStore[uploadImage.field])) fieldsStore[uploadImage.field].push(uploadImage);
+      else fieldsStore[uploadImage.field] = [uploadImage];
+   });
 
-         if(currentField.length === 1) fieldsStore[field] = currentField[0];
-      };
+   for(let field in fieldsStore) {
+      const currentField = fieldsStore[field];
 
-      store.upload = {
-         ...store.upload,
-         ...fieldsStore,
-      };
-   }
+      if(currentField.length === 1) fieldsStore[field] = currentField[0];
+   };
+
+   store.upload = {
+      ...store.upload,
+      ...fieldsStore,
+   };
+   
 })
 
 export default uploadFilePlugin;
