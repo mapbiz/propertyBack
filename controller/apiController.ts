@@ -1,3 +1,5 @@
+import { t } from "elysia";
+
 import type { Context } from "elysia";
 
 import type { ReponceWithoutData, ResponceWithData, ResponceWithError, ReponceWithReason, ErrorObject, ResponceWithErrors } from "../types/responce.types"; 
@@ -5,7 +7,14 @@ import type { StoreUpload } from "../types/fileUpload.types";
 
 import type { TenantCreateNewRequest } from "../types/tenant.types";
 
-import { ObjectCreateNewRequest, ObjectTypeRequest, ObjectAddNewTenantRequest, ObjectTenantsInfo, ObjectSlugRequest } from "../types/object.types";
+import { 
+   ObjectCreateNewRequest,
+   ObjectTypeRequest, 
+   ObjectAddNewTenantRequest, 
+   ObjectDeleteTentantInObject,
+   ObjectSlugRequest,
+   ObjectEditTentantsRequest,
+} from "../types/object.types";
 import { CustomRequestParams } from "../types/request.types"; 
 
 import { objectEmptyFilter } from "../src/helpers/filter";
@@ -20,6 +29,7 @@ import responce from "../src/helpers/responce";
 import { Loaded, wrap } from "@mikro-orm/core";
 
 import { slug } from "../src/helpers/slug";
+import { tenantModel } from "../models/tentan.model";
 
 export class ApiController {
 
@@ -109,7 +119,7 @@ export class ApiController {
 
       return responce.successCreated.withData<Objects>({ set, data: newObject });
    };
-   async addTentantToObject({ body, set, params }: ObjectAddNewTenantRequest): Promise<ResponceWithErrors | ResponceWithError<string> | ResponceWithData<Objects>> {
+   async addTentantToObject({ body, set, params }: ObjectAddNewTenantRequest): Promise<ResponceWithErrors | ResponceWithError<string> | ResponceWithData<Objects>> {      
       const getObject: Objects | null = await orm.findOne(Objects, {
          id: params.id,
          type: 'sale-business',
@@ -150,7 +160,9 @@ export class ApiController {
 
       if(errorAddTentant.length > 0) return responce.failureWithErrors({ set, errors: errorAddTentant }); 
 
-      await orm.persist([getObject]).flush();
+      // await orm.persist([getObject]).flush();
+      await orm.flush();
+
 
       return responce.successWithData({ set, data: getObject });
    };
@@ -350,6 +362,52 @@ export class ApiController {
          console.log(err);
       };
    };
+   async editTentantInObject({ body, set, params }: ObjectEditTentantsRequest) {
+      const getObject: Objects | null = await orm.findOne(Objects, {
+         id: params.id,
+         type: 'sale-business',
+         tenantsInfo: {
+            $ne: [],
+         }
+      }, {
+         populate: ["*"],
+      });
+
+      
+      if(!getObject) return responce.failureNotFound({
+         set,
+         error: {
+            field: "id | tenantsInfo | type",
+            message: `Проверьте ввод обьекта ${params.id}, у него должен быть тип sale-business и должны уже иметься арендаторы для удаления!`
+         },
+      });
+
+      const errors: ErrorObject[] = [];
+      for(let tentantToEdit of body) {
+         const findIndexInObject = getObject.tenantsInfo.findIndex(tentantInObject => tentantInObject.tentantId === tentantToEdit.tentantId);
+
+         if(findIndexInObject === -1) errors.push({
+            field: "tenatantId",
+            message: "Такого арендатора нет в обьекте", 
+         });
+         else {
+            getObject.tenantsInfo[findIndexInObject] = {
+               ...getObject.tenantsInfo[findIndexInObject],
+               ...tentantToEdit,
+            };
+         }
+
+      };
+
+      if(errors.length > 0) return responce.failureWithErrors({
+         set, 
+         errors,
+      });
+
+      await orm.flush();
+
+      return responce.successWithData({ set, data: getObject });
+   };
 
    // delete 
    async deleteObject({ set, params }: Pick<
@@ -405,5 +463,58 @@ export class ApiController {
 
       return responce.successWithoutData({ set });
    };
-   async deleteTentantInObject({  })
+   async deleteTentantInObject({ set, params, body }: ObjectDeleteTentantInObject) {
+      try {
+         const getObject: Objects | null = await orm.findOne(Objects, {
+            id: params.id,
+            type: 'sale-business',
+            tenantsInfo: {
+               $ne: [],
+            }
+         }, {
+            populate: ["*"],
+         });
+
+         if(!getObject) return responce.failureNotFound({
+            set,
+            error: {
+               field: "id | tenantsInfo | type",
+               message: `Проверьте ввод обьекта ${params.id}, у него должен быть тип sale-business и должны уже иметься арендаторы для удаления!`
+            },
+         });
+
+
+
+         const errors: ErrorObject[] = [];
+         for(let tentantOfDelete of body) {
+            const findIndexTentantInObject = getObject.tenantsInfo.findIndex(tenantInObject => tenantInObject.tentantId === tentantOfDelete.tenatantId);
+
+            if(findIndexTentantInObject === -1) errors.push({
+               field: "tenatantId",
+               message: "Такого арендатора нет в обьекте", 
+            });
+
+            else {
+               const refGetTentantOfDelete: Tentant = getObject.tenants.find(tentant => tentant.id === tentantOfDelete.tenatantId)
+
+               getObject.tenantsInfo.splice(findIndexTentantInObject, 1);
+               getObject.tenants.remove(refGetTentantOfDelete);
+            }
+         };
+
+
+         if(errors.length > 0) return responce.failureWithErrors({
+            set, 
+            errors,
+         })
+
+         await orm.flush();
+
+         return responce.successWithData({ set, data: getObject });
+      }
+      catch(err) {
+         console.log(err);
+      };
+
+   };
 };

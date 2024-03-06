@@ -93,6 +93,12 @@ router
    params: 'editObjectParams',
    body: 'editObjectBody',
 })
+.put('/object/update-tentant/:id', controller.editTentantInObject, {
+   body: "editObjectTentants",
+   params: t.Object({
+      id: t.String({ error: "id обьекта обязателен для изменения его арендатора" })
+   })
+})
 .patch('/object/:id', controller.editObject, {
    params: 'editObjectParams',
    body: 'editObjectBody',
@@ -113,6 +119,7 @@ router
 
 // delete
 router
+.use(objectModel)
 .delete('/object/:id', controller.deleteObject, {
    params: t.Object(
       {
@@ -141,7 +148,8 @@ router
       {
          error: "Такой параметр не предусмотрен в запросе!",
       }
-   )
+   ),
+   body: "deleteTentantsObject",
 });
 
 export default router;

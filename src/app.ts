@@ -34,7 +34,7 @@ if(Bun.env.NODE_ENV === 'development') {
 };
 
 // Хенделинг
-app.onError(({ error, code, set }) => {
+app.onError(({ error, code, set, body }) => {
    switch(code) {
       case "NOT_FOUND":
       return responce.failureNotFound({ set, error: { field: "url", message: "Не найдено!" } });
@@ -50,17 +50,24 @@ app.onError(({ error, code, set }) => {
 
          else return responce.failureWithReason({ set, reason: "Неизвестная ошибка!", statusCode: 500, });
       case "VALIDATION":
+         if(error.all.findIndex(err => err.schema.anyOf?.length > 0) > -1) return responce.failureWithReason({
+            set,
+            reason: error.validator.schema.error,
+         });
+
          return responce.failureWithErrors({ 
             set, 
             errors: uniqBy(
                error.all
                .map(err => {
                   return {
-                     field: err.path,
+                     field: !err?.path ? 'body': err.path,
                      message: err.schema.error,
                   }
                })
-               .filter(err => !!err.field),
+               .filter(err => {
+                  return !!err.field;
+               }),
                'message',
             )
          });

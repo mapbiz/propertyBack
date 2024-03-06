@@ -1,8 +1,6 @@
 import { Elysia, t } from "elysia";
 
 
-import { NormalNumeric } from "./fields.models";
-
 import type { ObjectRequest } from "../types/object.types";
 
 export const objectModel = new Elysia()
@@ -183,6 +181,29 @@ export const objectModel = new Elysia()
          error: "id обязательно для редактирования обьекта!",
       }),
    }),
+   editObjectTentants: t.Array(
+      t.Object(
+         {
+            tentantId: t.String({ error: "Обязателен для редактирования!" }),
+            indexation: t.Optional(
+               t.Number({ error: "Индексация должна быть числом!" })
+            ),
+            contract: t.Optional(
+               t.String({ error: "Договор должен быть строкой!" })
+            ),
+            detalization: t.Optional( 
+               t.Array(t.String({ error: "Строчка детализации должна быть строкой!" }))
+            ),
+            rentFlow: t.Optional(
+               t.Object({
+                  mounth: t.Number({ error: "Месячный арендный поток должен быть числом!" }),
+                  year: t.Number({ error: "Годовой арендный поток должен быть числом!" }),
+               }, { error: "У месячного потока не может быть такого поля!" })
+            )
+         },
+         { error: "Такого поля быть не может" }
+      ),
+   ),
    editObjectBody: t.Partial(
       t.Object(
          {
@@ -192,9 +213,10 @@ export const objectModel = new Elysia()
             description: t.String({ error: "Описание должно быть строкой!" }),
             metro: t.String({ error: "Метро должен быть строкой!" }),
             agentRemuneration: t.Numeric({ error: "Вознаграждение агента должна быть нумеральбельной строкой" }),
-            payback: t.Numeric({ 
+            payback:t.Numeric({ 
                error: "Окупаемость должна быть нумеральбельной строкой",
             }),
+            
             zone: t.BooleanString({ error: "Зона погрузки/разгрузки должна быть booleanLike строкой!" }),
 
             // info
@@ -225,6 +247,7 @@ export const objectModel = new Elysia()
             globalRentFlowYear: t.Numeric({ error: "Годовой арендный поток может быть только нумероподобным числом!" }),
             globalRentFlowMouth: t.Numeric({ error: "Месячный арендный поток может быть только нумероподобным числом!" }),
             
+         
             // photos
             photoMap: t.File({
                error: "Фотка карты, должна быть фоткой!"
@@ -247,7 +270,19 @@ export const objectModel = new Elysia()
          }
       )
    ),
-   
+      
+   deleteTentantsObject: t.Array(
+      t.Object(
+         {
+            tenatantId: t.String({ 
+               error: "id арендатора обязательно для его удаления" 
+            }),
+         },
+         { error: "Поле не предусмотрено!" },
+      ),
+      { error: "Ожидается массив!" },
+   )
+
 });
 // t.Partial(
 //    t.Object(

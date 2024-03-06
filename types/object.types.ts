@@ -187,7 +187,27 @@ export type ObjectEditRequest = Pick<
 >;
 export type ObjectDeleteTentantInObject = Pick<
    CustomRequestParams<
-      
+      {
+         tenatantId: string;
+      }[],
+      Context['set'],
+      Context['store'],
+      Context['request'],
+      {
+         id: string;
+      }
+   >,
+   'body' | 'params' | 'set'
+>;
+export type ObjectEditTentantsRequest = Pick<
+   CustomRequestParams<
+   ObjectTenantsInfo[],
+   Context['set'],
+   Context['store'],
+   Context['request'],
+   {
+      id: string;
+   }
    >,
    'body' | 'params' | 'set'
 >
