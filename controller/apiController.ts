@@ -61,10 +61,7 @@ export class ApiController {
          payback: body.payback,
          zone: body.zone,
          imageMap: new Images(store.upload.photoMap.filename),
-         coordinates: {
-            lat: body.lat,
-            lon: body.lon,
-         },
+         coordinates: body.coordinates,
          globalRentFlow: {
             year: body.globalRentFlowYear,
             mouth: body.globalRentFlowMouth,
@@ -78,10 +75,7 @@ export class ApiController {
                mouth: body.priceRentMouth,
             },
          },
-         panorama: {
-            lat: body.panoramaLat,
-            lon: body.panoramaLon,
-         },
+         panorama: body.panorama,
          info: {
             square: body.infoSquare,
             floor: body.infoFloor,
@@ -300,9 +294,8 @@ export class ApiController {
                "globalRentFlowYear": "globalRentFlow.year",
                "globalRentFlowMouth": "globalRentFlow.mouth",
 
-               // panorama
-               "panoramaLat": "panorama.lat",
-               "panoramaLon": "panorama.lon",
+               "panorama": "panorama",
+               "coordinates": "coordinates",
 
                // info
                "infoSquare": "info.square",

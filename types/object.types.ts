@@ -2,15 +2,11 @@ import type { Image } from "./images.types";
 import type { Context } from "elysia"; 
 import type { StoreUpload } from "./fileUpload.types"; 
 import type { CustomRequestParams } from "./request.types";
-import type { ObjectId } from "@mikro-orm/mongodb";
 import { Images } from "../db/entities/Images";
 
 export type TypeObject = 'sale' | 'rent' | 'sale-business' | 'hidden';
 
-export type Coordinates = {
-   lat: number;
-   lon: number;
-};
+export type Coordinates = `${'http:' | 'https:'}${string}`;
 
 export type TechParamers = {
    square: number;
@@ -75,8 +71,8 @@ export type Object = {
    images: Omit<Image, 'id'>[];
    layoutImages: Omit<Image, 'id'>[];
    imageMap: Images,
-   panorama: Coordinates;
-   coordinates: Coordinates;
+   panorama: `${'http:' | 'https:'}${string}`;
+   coordinates: `${'http:' | 'https:'}${string}`;
 
    agentRemuneration?: number;
    zone: boolean;
@@ -102,7 +98,7 @@ export type Object = {
    type: TypeObject;
 };
 
-export type ObjectRequest = Omit<Object, 'slug' | 'info' | 'tentantsInfo' | 'price' | 'type' | 'panorama' | 'coordinates'> 
+export type ObjectRequest = Omit<Object, 'slug' | 'info' | 'tentantsInfo' | 'price' | 'type' | 'panorama'> 
 & {
    // info
    infoSquare: number; 
@@ -130,13 +126,10 @@ export type ObjectRequest = Omit<Object, 'slug' | 'info' | 'tentantsInfo' | 'pri
    tenantsInfoDateContractRents: number;
 
 
-   // coordinates
-   lat: number;
-   lon: number;
-
    // panorama 
-   panoramaLat: number; 
-   panoramaLon: number;
+   panorama: `${'http:' | 'https:'}${string}`;
+   // panoramaLat: number; 
+   // panoramaLon: number;
 
    // photos
    photos: Blob | Blob[],

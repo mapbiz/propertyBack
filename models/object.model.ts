@@ -27,8 +27,12 @@ export const objectModel = new Elysia()
             // all required field
             title: t.String({ error: "Заголовок должен быть строкой!" }),
             address: t.String({ error: "Адресс должен быть строкой!" }),
-            lat: t.Numeric({ error: "Широта может быть только нумероподобным числом!" }),
-            lon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
+            coordinates: t.String({
+               error: "Координаты должны быть ссылкой",
+               
+            }),
+            // lat: t.Numeric({ error: "Широта может быть только нумероподобным числом!" }),
+            // lon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
 
             // all options field
             metro: t.Optional(
@@ -108,12 +112,15 @@ export const objectModel = new Elysia()
             ),
             
             // panorama
-            panoramaLat: t.Optional(
-               t.Numeric({ error: "Широта может быть только нумероподобным числом!" })
-            ), 
-            panoramaLon: t.Optional(
-               t.Numeric({ error: "Долгота может быть только нумероподобным числом!" })
-            ),
+            panorama: t.String({
+               error: "Панорама должна быть ссылкой",
+            }),
+            // panoramaLat: t.Optional(
+            //    t.Numeric({ error: "Широта может быть только нумероподобным числом!" })
+            // ), 
+            // panoramaLon: t.Optional(
+            //    t.Numeric({ error: "Долгота может быть только нумероподобным числом!" })
+            // ),
 
             // photos
             photoMap: t.File({
@@ -240,8 +247,9 @@ export const objectModel = new Elysia()
             priceRentMouth: t.Numeric({ error: "Арендная ставка в месяц может быть только нумероподобным числом!" }),
 
             // panorama
-            panoramaLat: t.Numeric({ error: "Широта может быть только нумероподобным числом!" }), 
-            panoramaLon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
+            panorama: t.String({ error: "Панорама должна быть строкой", format: "uri" }),
+            // panoramaLat: t.String({ error: "Широта может быть только нумероподобным числом!" }), 
+            // panoramaLon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
 
             // only ready bussiness
             globalRentFlowYear: t.Numeric({ error: "Годовой арендный поток может быть только нумероподобным числом!" }),

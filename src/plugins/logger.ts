@@ -56,7 +56,9 @@ const serverLoggerPlugin = new Elysia()
 .onRequest(({ loggerPlugin: { serverRequest }, request, set: { status } }) => {
    serverRequest.info(`${request.url} ${colorsOfMethods(request.method)}  ${colorsOfStatuses(status)}`);
 })
-.onResponse(({ request, set: { status }, loggerPlugin: { serverResponce } }) => {
+.onResponse(({ body, request, set: { status }, loggerPlugin: { serverResponce } }) => {
+   console.log(body);
+   
    serverResponce.info(`${ request.url } ${ colorsOfMethods(request.method) } ${colorsOfStatuses(status)}`);
 });
 

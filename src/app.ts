@@ -103,7 +103,6 @@ app.use(serverLoggerPlugin);
 
 // Все пути с префиксами
 app.use(apiRouter);
-
 app.listen(port, () => console.log(`Server run at: http://${app.server?.hostname}:${app.server?.port}`));
 
 export default app;
