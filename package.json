@@ -25,6 +25,7 @@
     "build": "bun build src/app.ts",
     "start": "NODE_ENV=production bun src/app.ts",
     "test": "bun test",
+    "generate:rsa-keys": "bun ./src/generate/rsaKeys.ts",
     "mikro-orm": "NODE_OPTIONS='--loader ts-node/esm --no-warnings' mikro-orm",
     "db:update": "NODE_OPTIONS='--loader ts-node/esm --no-warnings' mikro-orm schema:update --config ./db/config.ts --run"
   },

@@ -1,7 +1,10 @@
 import { Elysia } from "elysia";
-import { swagger } from "@elysiajs/swagger";
 
 import { staticPlugin } from '@elysiajs/static';
+import bearer from "@elysiajs/bearer";
+import { cors } from "@elysiajs/cors";
+import jwt from "@elysiajs/jwt";
+import { swagger } from "@elysiajs/swagger";
 
 import { resolve } from "node:path";
 
@@ -77,6 +80,17 @@ app.onError(({ error, code, set, body }) => {
 
 
 // Плагины
+app.use(cors({
+   origin: Bun.env.CORS_ORIGIN!,
+   credentials: true,
+   maxAge: Number(Bun.env.CORS_MAX_AGE!),
+   allowedHeaders: Bun.env.CORS_ALLOWED_HEADERS!,
+}))
+app.use(bearer());
+app.use(jwt({
+   name: "jwt",
+   secret: "secret",
+}))
 app.use(staticPlugin({
    assets: resolve(Bun.env.SERVER_PUBLIC),
 }));
@@ -84,7 +98,7 @@ app.use(staticPlugin({
 // Собственные плагины
 app.use(uploadFilePlugin);
 app.use(serverLoggerPlugin);
-app.use(authPlugin);
+// app.use(authPlugin());
 
 
 // Все пути с префиксами
