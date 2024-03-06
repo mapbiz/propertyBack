@@ -239,7 +239,7 @@ export const objectModel = new Elysia()
             priceRentMouth: t.Numeric({ error: "Арендная ставка в месяц может быть только нумероподобным числом!" }),
 
             // panorama
-            panorama: t.String({ error: "Панорама должна быть строкой", format: "uri" }),
+            panorama: t.String({ error: "Панорама должна быть строкой" }),
             // panoramaLat: t.String({ error: "Широта может быть только нумероподобным числом!" }), 
             // panoramaLon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
 
