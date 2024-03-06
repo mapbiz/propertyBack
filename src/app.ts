@@ -38,6 +38,7 @@ if(Bun.env.NODE_ENV === 'development') {
 
 // Хенделинг
 app.onError(({ error, code, set, body }) => {
+
    switch(code) {
       case "NOT_FOUND":
       return responce.failureNotFound({ set, error: { field: "url", message: "Не найдено!" } });
@@ -53,8 +54,11 @@ app.onError(({ error, code, set, body }) => {
 
          else return responce.failureWithReason({ set, reason: "Неизвестная ошибка!", statusCode: 500, });
       case "VALIDATION":
+         console.log(code, error);
+
          if(error.all.findIndex(err => err.schema.anyOf?.length > 0) > -1) return responce.failureWithReason({
             set,
+            statusCode: 400,
             reason: error.validator.schema.error,
          });
 

@@ -82,7 +82,7 @@ export default {
          reason,
       };
    },
-   failureWithError<T>({ set, statusCode, error }: ErrorParams<T>): ResponceWithError<T> {
+   failureWithError<T>({ set, statusCode = 400, error }: ErrorParams<T>): ResponceWithError<T> {
       set.status = statusCode;
 
       return {
