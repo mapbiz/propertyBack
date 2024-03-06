@@ -187,7 +187,7 @@ export class ApiController {
             params.type:
             { $ne: 'hidden' }
          },
-         fields: ['images', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro'],
+         fields: ['images', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates'],
          populate: ['images'],
       });
       return responce.successWithData({ set, data: getObjects });

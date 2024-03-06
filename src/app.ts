@@ -7,7 +7,7 @@ import { resolve } from "node:path";
 
 import serverLoggerPlugin from "./plugins/logger";
 import uploadFilePlugin from "./plugins/fileUpload";
-import nullableTransformPlugin from "./plugins/nullableTransform";
+import authPlugin from "./plugins/auth.ts";
 
 import apiRouter from "../routes/api.ts";
 import responce from "./helpers/responce.ts";
@@ -84,7 +84,7 @@ app.use(staticPlugin({
 // Собственные плагины
 app.use(uploadFilePlugin);
 app.use(serverLoggerPlugin);
-// app.use(nullableTransformPlugin);
+app.use(authPlugin);
 
 
 // Все пути с префиксами

@@ -35,45 +35,6 @@ router
 })
 .post('/object', controller.createNewObject, 
 {
-   // @ts-ignore
-   // transform({ body, set }) {
-   //    objectConvertField<unknown>([
-   //       // all
-   //       { convert: 'number', field: 'agentRemuneration' },
-   //       { convert: 'boolean', field: 'zone' },
-
-   //       // only ready bus
-   //       { convert: 'number', field: 'payback' },
-   //       { convert: 'number', field: 'globalRentFlowYear' },
-   //       { convert: 'number', field: 'globalRentFlowMouth' },
-
-   //       // info
-   //       { convert: 'number', field: 'infoSquare' },
-   //       { convert: 'number', field: 'infoCeilingHeight' },
-   //       { convert: 'number', field: 'infoTo' },
-   //       { convert: 'number', field: 'infoFrom' },
-   //       { convert: 'number', field: 'infoFloor' },
-   //       { convert: 'number', field: 'infoCountEntrance' },
-   //       { convert: 'number', field: 'infoGlazing' },
-   //       { convert: 'boolean', field: 'infoHood' },
-
-   //       // price
-   //       { convert: 'number', field: 'priceSquare' },
-   //       { convert: 'number', field: 'priceProfitability' },
-   //       { convert: 'number', field: 'priceGlobal' },
-   //       { convert: 'number', field: 'priceRentYear' },
-   //       { convert: 'number', field: 'priceRentMouth' },
-
-   //       // tentansInfo 
-   //       { convert: 'number', field: 'tenantsInfoRentFlowMount' }, 
-   //       { convert: 'number', field: 'tenantsInfoRentFlowYear' },
-   //       { convert: 'number', field: 'tenantsInfoDateContractRents' },
-
-   //       // panorama
-   //       { convert: 'number', field: 'panoramaLat' },
-   //       { convert: 'number', field: 'panoramaLon' },
-   //    ], body);
-   // },
    body: 'createObject',
    type: 'multipart/form-data',
 });
