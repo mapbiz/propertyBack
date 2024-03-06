@@ -200,6 +200,7 @@ export class ApiController {
       const getCurrentObject: Objects | null = await orm.findOne(Objects, {
          slug: params.slug,
       }, {
+         fields: ["*"],
          populate: ['*'],
       });
 
