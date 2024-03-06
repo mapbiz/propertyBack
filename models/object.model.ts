@@ -27,12 +27,9 @@ export const objectModel = new Elysia()
             // all required field
             title: t.String({ error: "Заголовок должен быть строкой!" }),
             address: t.String({ error: "Адресс должен быть строкой!" }),
-            coordinates: t.String({
-               error: "Координаты должны быть ссылкой",
-               
-            }),
-            // lat: t.Numeric({ error: "Широта может быть только нумероподобным числом!" }),
-            // lon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
+
+            lat: t.Numeric({ error: "Широта может быть только нумероподобным числом!" }),
+            lon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
 
             // all options field
             metro: t.Optional(
@@ -115,13 +112,6 @@ export const objectModel = new Elysia()
             panorama: t.String({
                error: "Панорама должна быть ссылкой",
             }),
-            // panoramaLat: t.Optional(
-            //    t.Numeric({ error: "Широта может быть только нумероподобным числом!" })
-            // ), 
-            // panoramaLon: t.Optional(
-            //    t.Numeric({ error: "Долгота может быть только нумероподобным числом!" })
-            // ),
-
             // photos
             photoMap: t.File({
                error: "Фотка карты, должна быть фоткой!"
@@ -216,6 +206,8 @@ export const objectModel = new Elysia()
          {
             // not nested
             title: t.String({ error: "Заголовок должен быть строкой!" }),
+            lat: t.Numeric({ error: "Широта может быть только нумероподобным числом!" }),
+            lon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
             address: t.String({ error: "Адресс должен быть строкой!" }),
             description: t.String({ error: "Описание должно быть строкой!" }),
             metro: t.String({ error: "Метро должен быть строкой!" }),

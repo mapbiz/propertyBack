@@ -60,7 +60,10 @@ export class Objects extends BaseEntity {
    public panorama: Coordinates;
 
    @Property({ nullable: true })
-   public coordinates: Coordinates;
+   public coordinates: {
+      lat: number;
+      lon: number;
+   };
 
    @Property({ nullable: false })
    public price: Partial<ObjectPrice>;

@@ -72,7 +72,10 @@ export type Object = {
    layoutImages: Omit<Image, 'id'>[];
    imageMap: Images,
    panorama: `${'http:' | 'https:'}${string}`;
-   coordinates: `${'http:' | 'https:'}${string}`;
+   coordinates: {
+      lat: number;
+      lon: number;
+   };
 
    agentRemuneration?: number;
    zone: boolean;
