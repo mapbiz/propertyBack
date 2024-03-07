@@ -203,73 +203,82 @@ export const objectModel = new Elysia()
    ),
    editObjectBody: t.Partial(
       t.Object(
-         {
-            // not nested
-            title: t.String({ error: "Заголовок должен быть строкой!" }),
-            lat: t.Numeric({ error: "Широта может быть только нумероподобным числом!" }),
-            lon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
-            address: t.String({ error: "Адресс должен быть строкой!" }),
-            description: t.String({ error: "Описание должно быть строкой!" }),
-            metro: t.String({ error: "Метро должен быть строкой!" }),
-            agentRemuneration: t.Numeric({ error: "Вознаграждение агента должна быть нумеральбельной строкой" }),
-            payback:t.Numeric({ 
-               error: "Окупаемость должна быть нумеральбельной строкой",
-            }),
-            
-            zone: t.BooleanString({ error: "Зона погрузки/разгрузки должна быть booleanLike строкой!" }),
+            {
+               // not nested
+               title: t.String({ error: "Заголовок должен быть строкой!" }),
+               lat: t.Numeric({ error: "Широта может быть только нумероподобным числом!" }),
+               lon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
+               address: t.String({ error: "Адресс должен быть строкой!" }),
+               description: t.String({ error: "Описание должно быть строкой!" }),
+               metro: t.String({ error: "Метро должен быть строкой!" }),
+               agentRemuneration: t.Numeric({ error: "Вознаграждение агента должна быть нумеральбельной строкой" }),
+               payback:t.Numeric({ 
+                  error: "Окупаемость должна быть нумеральбельной строкой",
+               }),
+               
+               zone: t.BooleanString({ error: "Зона погрузки/разгрузки должна быть booleanLike строкой!" }),
 
-            // info
-            infoSquare: t.Numeric({ error: "Площадь может быть только нумероподобным числом!" }),
-            infoTypeWindow: t.String({ error: "Тип окна может быть только строкой!" }),
-            infoLayout: t.String({ error: "Описание планировки может быть только строкой!" }),
-            infoCountEntrance: t.Numeric({ error: "Количество входов может быть только нумероподобным числом!" }),
-            infoEnter: t.String({ error: "Вход может быть только строкой!" }),
-            infoCeilingHeight: t.String({ error: "Высота потолков может быть только строкой!" }),
-            infoFinishing: t.String({ error: "Отделка может быть только строкой!" }),
-            infoFloor: t.Numeric({ error: "Этаж может быть только нумероподобным числом!" }),
-            infoForce: t.Numeric({ error: "Эл. мощность может быть только нумероподобным числом!" }),
-            infoGlazzing: t.Numeric({ error: "Остекление может быть только нумероподобным числом!" }), 
-            infoHood: t.BooleanString({ error: "Вытяжка должна быть booleanLike строкой!" }),
-            
-            // price
-            priceSquare: t.Numeric({ error: "Стоймость за кв метр может быть только нумероподобным числом!" }),
-            priceProfitability: t.Numeric({ error: "Доходность может быть только нумероподобным числом!" }),
-            priceGlobal: t.Numeric({ error: "Цена может быть только нумероподобным числом!" }),
-            priceRentYear: t.Numeric({ error: "Арендная ставка в год может быть только нумероподобным числом!" }),
-            priceRentMouth: t.Numeric({ error: "Арендная ставка в месяц может быть только нумероподобным числом!" }),
+               // info
+               infoSquare: t.Numeric({ error: "Площадь может быть только нумероподобным числом!" }),
+               infoTypeWindow: t.String({ error: "Тип окна может быть только строкой!" }),
+               infoLayout: t.String({ error: "Описание планировки может быть только строкой!" }),
+               infoCountEntrance: t.Numeric({ error: "Количество входов может быть только нумероподобным числом!" }),
+               infoEnter: t.String({ error: "Вход может быть только строкой!" }),
+               infoCeilingHeight: t.String({ error: "Высота потолков может быть только строкой!" }),
+               infoFinishing: t.String({ error: "Отделка может быть только строкой!" }),
+               infoFloor: t.Numeric({ error: "Этаж может быть только нумероподобным числом!" }),
+               infoForce: t.Numeric({ error: "Эл. мощность может быть только нумероподобным числом!" }),
+               infoGlazzing: t.Numeric({ error: "Остекление может быть только нумероподобным числом!" }), 
+               infoHood: t.BooleanString({ error: "Вытяжка должна быть booleanLike строкой!" }),
+               
+               // price
+               priceSquare: t.Numeric({ error: "Стоймость за кв метр может быть только нумероподобным числом!" }),
+               priceProfitability: t.Numeric({ error: "Доходность может быть только нумероподобным числом!" }),
+               priceGlobal: t.Numeric({ error: "Цена может быть только нумероподобным числом!" }),
+               priceRentYear: t.Numeric({ error: "Арендная ставка в год может быть только нумероподобным числом!" }),
+               priceRentMouth: t.Numeric({ error: "Арендная ставка в месяц может быть только нумероподобным числом!" }),
 
-            // panorama
-            panorama: t.String({ error: "Панорама должна быть строкой" }),
-            // panoramaLat: t.String({ error: "Широта может быть только нумероподобным числом!" }), 
-            // panoramaLon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
+               // panorama
+               panorama: t.String({ error: "Панорама должна быть строкой" }),
+               // panoramaLat: t.String({ error: "Широта может быть только нумероподобным числом!" }), 
+               // panoramaLon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
 
-            // only ready bussiness
-            globalRentFlowYear: t.Numeric({ error: "Годовой арендный поток может быть только нумероподобным числом!" }),
-            globalRentFlowMouth: t.Numeric({ error: "Месячный арендный поток может быть только нумероподобным числом!" }),
+               // only ready bussiness
+               globalRentFlowYear: t.Numeric({ error: "Годовой арендный поток может быть только нумероподобным числом!" }),
+               globalRentFlowMouth: t.Numeric({ error: "Месячный арендный поток может быть только нумероподобным числом!" }),
+               
             
-         
-            // photos
-            photoMap: t.File({
-               error: "Фотка карты, должна быть фоткой!"
-            }),
-            photos: t.Files({
-               minItems: 1,
-               maxItems: 30,
-               error: "Фото обьекта могут быть от 1 до 30!"
-            }),
-            photosLayout: t.Files({
-               minItems: 1,
-               maxItems: 30,
-               error: "Фото планировки обьекта могут быть от 1 до 30!"
-            }),
-         
-         },
-         {
-            error: "Такое поле не предусмотрено!",
-            additionalProperties: true,
-         }
+               // photos
+               photoMap: t.File({
+                  error: "Фотка карты, должна быть фоткой!"
+               }),
+               photos: t.Files({
+                  minItems: 1,
+                  maxItems: 30,
+                  error: "Фото обьекта могут быть от 1 до 30!"
+               }),
+               photosLayout: t.Files({
+                  minItems: 1,
+                  maxItems: 30,
+                  error: "Фото планировки обьекта могут быть от 1 до 30!"
+               }),
+            
+            },
+            {
+               error: "Такое поле не предусмотрено!",
+            }
       )
    ),
+   // editObject: t.Partial(
+   //    t.Object(
+   //       {
+   //          zone: t.BooleanString(),
+   //       },
+   //       // {
+   //       //    additionalProperties: true,
+   //       // }
+   //    )
+   // ),
       
    deleteTentantsObject: t.Array(
       t.Object(

@@ -284,7 +284,7 @@ export class ApiController {
          };
          if(!!store.upload.photoMap) editableObject.imageMap = new Images(store.upload.photoMap.filename);
 
-         console.log(body);
+         // console.log('zone', body.zone);
 
          const clearEmptyFields = objectEmptyFilter(body, [Object.keys(body)]),
          renameBody = dottedFieldToNestedObject(
@@ -307,6 +307,7 @@ export class ApiController {
                // info
                "infoSquare": "info.square",
                "infoFloor": "info.floor",
+               "infoForce": "info.force",
                "infoCeilingHeight": "info.ceilingHeight",
                "infoCountEntrance": "info.countEntrance",
                "infoGlazzing": "info.glazing",
@@ -327,6 +328,7 @@ export class ApiController {
                // info
                "info.square",
                "info.floor",
+               "info.force",
                "info.ceilingHeight",
                "info.countEntrance",
                "info.glazing",
@@ -358,7 +360,7 @@ export class ApiController {
          return responce.successWithData({ set, data: editableObject });
       }
       catch(err) {
-         console.log(err);
+         console.log('error', err);
       };
    };
    async editTentantInObject({ body, set, params }: ObjectEditTentantsRequest) {
@@ -512,7 +514,6 @@ export class ApiController {
          return responce.successWithData({ set, data: getObject });
       }
       catch(err) {
-         console.log(err);
       };
 
    };
