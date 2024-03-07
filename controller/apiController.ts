@@ -285,7 +285,7 @@ export class ApiController {
          if(!!store.upload.photoMap) editableObject.imageMap = new Images(store.upload.photoMap.filename);
 
          // console.log('zone', body.zone);
-
+         console.log(body.lat);
          const clearEmptyFields = objectEmptyFilter(body, [Object.keys(body)]),
          renameBody = dottedFieldToNestedObject(
             objectRenameFields({
@@ -324,6 +324,9 @@ export class ApiController {
                "price.profitability",
                "price.rent.year",
                "price.rent.mouth",
+
+               "coordinates.lat",
+               "coordinates.lon",
 
                // info
                "info.square",
