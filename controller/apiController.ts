@@ -283,7 +283,9 @@ export class ApiController {
             request.method === 'patch' ? editableObject.layoutImages.add(newLayoutImages): editableObject.layoutImages.set(newLayoutImages);
          };
          if(!!store.upload.photoMap) editableObject.imageMap = new Images(store.upload.photoMap.filename);
-         
+
+         console.log(body);
+
          const clearEmptyFields = objectEmptyFilter(body, [Object.keys(body)]),
          renameBody = dottedFieldToNestedObject(
             objectRenameFields({
@@ -298,7 +300,7 @@ export class ApiController {
                "globalRentFlowYear": "globalRentFlow.year",
                "globalRentFlowMouth": "globalRentFlow.mouth",
 
-               "panorama": "panorama",
+               // "panorama": "panorama",
                "lat": "coordinates.lat",
                "lon": "coordinates.lon",
 
