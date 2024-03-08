@@ -168,7 +168,7 @@ export const objectModel = new Elysia()
          contract: t.String(),
          detalization: t.Array(t.String()),
          rentFlow: t.Object({
-            mounth: t.Number(),
+            month: t.Number(),
             year: t.Number(),
          })
       })
@@ -193,7 +193,7 @@ export const objectModel = new Elysia()
             ),
             rentFlow: t.Optional(
                t.Object({
-                  mounth: t.Number({ error: "Месячный арендный поток должен быть числом!" }),
+                  month: t.Number({ error: "Месячный арендный поток должен быть числом!" }),
                   year: t.Number({ error: "Годовой арендный поток должен быть числом!" }),
                }, { error: "У месячного потока не может быть такого поля!" })
             )
@@ -269,16 +269,6 @@ export const objectModel = new Elysia()
             }
       )
    ),
-   // editObject: t.Partial(
-   //    t.Object(
-   //       {
-   //          zone: t.BooleanString(),
-   //       },
-   //       // {
-   //       //    additionalProperties: true,
-   //       // }
-   //    )
-   // ),
       
    deleteTentantsObject: t.Array(
       t.Object(
