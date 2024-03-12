@@ -1,12 +1,14 @@
 {
   "dependencies": {
     "@elysiajs/bearer": "^0.8.0",
+    "@elysiajs/cookie": "^0.8.0",
     "@elysiajs/cors": "^0.8.0",
     "@elysiajs/jwt": "^0.8.0",
     "@elysiajs/static": "^0.8.1",
     "@mikro-orm/cli": "^6.1.6",
     "@mikro-orm/core": "^6.1.6",
     "@mikro-orm/mongodb": "^6.1.6",
+    "bun-promptx": "^0.2.0",
     "elysia": "^0.8.17",
     "elysia-session": "^0.0.5",
     "file-type": "^19.0.0",
@@ -25,6 +27,8 @@
     "build": "bun build src/app.ts",
     "start": "NODE_ENV=production bun src/app.ts",
     "test": "bun test",
+    "generate:admin": "bun ./src/generate/admin.ts",
+    "generate:secrets": "bun ./src/generate/secret.ts",
     "generate:rsa-keys": "bun ./src/generate/rsaKeys.ts",
     "mikro-orm": "NODE_OPTIONS='--loader ts-node/esm --no-warnings' mikro-orm",
     "db:update": "NODE_OPTIONS='--loader ts-node/esm --no-warnings' mikro-orm schema:update --config ./db/config.ts --run"

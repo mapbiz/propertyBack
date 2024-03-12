@@ -5,8 +5,6 @@ import { BaseEntity } from "./BaseEntity.ts";
 import { Objects } from "./Object.ts";
 import { Tenant } from "./Tenants.ts";
 
-import app from "../../src/app.ts";
-
 @Entity()
 export class Images extends BaseEntity {
    @Property({ 

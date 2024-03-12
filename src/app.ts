@@ -4,6 +4,7 @@ import { staticPlugin } from '@elysiajs/static';
 import bearer from "@elysiajs/bearer";
 import { cors } from "@elysiajs/cors";
 import jwt from "@elysiajs/jwt";
+import { cookie } from '@elysiajs/cookie'
 import { swagger } from "@elysiajs/swagger";
 
 import { resolve } from "node:path";
@@ -13,9 +14,20 @@ import uploadFilePlugin from "./plugins/fileUpload";
 import authPlugin from "./plugins/auth.ts";
 
 import apiRouter from "../routes/api.ts";
+import authRouter from "../routes/auth.ts";
+
 import responce from "./helpers/responce.ts";
 
 import { uniqBy } from "./helpers/uniq.ts";
+import { sessionPlugin } from "elysia-session";
+// @ts-ignore
+import { CookieStore } from "elysia-session/stores/cookie";
+import { BunSQLiteStore } from "elysia-session/stores/bun/sqlite"
+import { Database } from "bun:sqlite";
+
+const database = new Database(":memory:");
+// 2nd argument is the table name
+const store = new BunSQLiteStore(database, "sessions");
 
 const port: number = Bun.env.SERVER_PORT || 8080;
 
@@ -88,6 +100,18 @@ app.use(cors({
    maxAge: Number(Bun.env.CORS_MAX_AGE!),
    allowedHeaders: Bun.env.CORS_ALLOWED_HEADERS!,
 }))
+app.use(cookie({
+   secret: Bun.env.COOKIE_SECRET_CRYPTED!,
+   sameSite: 'none',
+   secure: true,
+   
+}));
+// app.use(sessionPlugin({
+//    cookieName: "session", // Optional, default is "session"
+//    store,
+//    expireAfter: Number(Bun.env.COOKIE_MAX_AGE!),
+// }))
+
 app.use(bearer());
 app.use(jwt({
    name: "jwt",
@@ -100,11 +124,16 @@ app.use(staticPlugin({
 // Собственные плагины
 app.use(uploadFilePlugin);
 app.use(serverLoggerPlugin);
-// app.use(authPlugin());
+app.use(authPlugin({
+   protectedRoutes: ['/auth/me'],
+
+}));
 
 
 // Все пути с префиксами
 app.use(apiRouter);
+app.use(authRouter);
+
 app.listen(port, () => console.log(`Server run at: http://${app.server?.hostname}:${app.server?.port}`));
 
 export default app;

@@ -28,7 +28,7 @@ export enum HttpCodes {
    NOT_CONTENT = 204,
 };
 export type StatusCodesSuccess = 200 | 201 | 204;
-export type StatusCodesFailure = 400 | 404 | 403 | 500;
+export type StatusCodesFailure = 400 | 401 | 404 | 403 | 500;
 export type StatusCodes = StatusCodesSuccess | StatusCodesFailure;
 
 export type ErrorObject<T = string> = {

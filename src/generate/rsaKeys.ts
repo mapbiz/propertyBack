@@ -2,7 +2,6 @@ import { generateKeyPairSync } from "node:crypto";
 import { resolve } from "node:path";
 import { writeFileSync } from "node:fs";
 
-import { $ } from "bun";
 
 import colors from "colors";
 

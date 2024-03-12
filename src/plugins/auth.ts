@@ -1,35 +1,32 @@
 import { Elysia } from "elysia";
 
+import { Admin } from "../../db/entities/Admin";
+import orm from "../../db";
 
-const authPlugin = "";
+import responce from "../helpers/responce";
 
-// type AuthParametrs = {
-//    protectedRoutes: Array<string>;
-//    unsafeMethods?: Array<string>;
-// };
+import { validAuth } from "../helpers/authJwt";
 
-// class AuthPlugin extends Elysia {
-//    public protectedRoutes: Array<string>;
-//    public unsafeMethods: Array<string>;
+type OptionsAuthPlugin = {
+   unsafeMethods?: string[];
+};
 
-//    constructor({
-//       protectedRoutes, 
-//       unsafeMethods=["POST", "PUT", "PATCH", "DELETE"],
-//    }: AuthParametrs) {
-//       super();
+const authPlugin = () => new Elysia()
+.decorate("auth", {})
+.onBeforeHandle(async ({ set, request, path, cookie, setCookie, removeCookie, jwt }) => {
+   if(path === '/auth/login') return;
 
-//       this.protectedRoutes = protectedRoutes;
-//       this.unsafeMethods = unsafeMethods;
+   if(!["POST", "PUT", "DELETE", "PATCH"].includes(request.method)) return;
+   
+   
+   const validUser = await validAuth({ cookie: { cookie, setCookie, removeCookie }, jwt });
 
-//       this.decorate("auth", {});
-//       this.onBeforeHandle(({ request, headers }) => {
-//          if(!this.unsafeMethods.includes(request.method)) return;
+   if(!validUser.auth) return responce.failureWithReason({
+      set,
+      statusCode: 401,
+      reason: "Вы неавторизованны",
+   });
+})
 
-//          console.log({ request, methods, headers });
-//       });
-//    };
-
-
-// };
 
 export default authPlugin;
