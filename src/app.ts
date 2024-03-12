@@ -104,7 +104,7 @@ app.use(cookie({
    secret: Bun.env.COOKIE_SECRET_CRYPTED!,
    sameSite: 'none',
    secure: true,
-   
+
 }));
 // app.use(sessionPlugin({
 //    cookieName: "session", // Optional, default is "session"
@@ -124,10 +124,7 @@ app.use(staticPlugin({
 // Собственные плагины
 app.use(uploadFilePlugin);
 app.use(serverLoggerPlugin);
-app.use(authPlugin({
-   protectedRoutes: ['/auth/me'],
-
-}));
+app.use(authPlugin());
 
 
 // Все пути с префиксами

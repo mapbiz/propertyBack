@@ -9,6 +9,11 @@ import { compare } from "bcrypt-ts";
 export default class AuthController {
    async login({ set, body, cookie, setCookie, removeCookie, jwt }) {
       try {
+         if(!!cookie.auth) return responce.failureWithReason({
+            reason: "Сначала выйдете!",
+            set,
+         })
+
          const findAdminByLogin = await orm.findOne(Admin, {
             login: body.login,
          }, {
