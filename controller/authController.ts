@@ -31,6 +31,7 @@ export default class AuthController {
             })
          };
 
+
          const verifyPassword = await Bun.password.verify(body.password, findAdminByLogin.password);
          
          if(!verifyPassword) return responce.failureWithError({
@@ -42,7 +43,7 @@ export default class AuthController {
             },
          })
 
-         await setAuth({ userData: findAdminByLogin, cookie: { cookie, setCookie, removeCookie }, jwt });
+         await setAuth({ userData: { id: findAdminByLogin.id, login: findAdminByLogin.login,  }, cookie: { cookie, setCookie, removeCookie }, jwt });
 
          // session.set('test', 'test');
          // session.updateAccessed();

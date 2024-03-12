@@ -14,8 +14,6 @@ type SetAuthParams = {
 };
 
 export const setAuth = async ({ userData, cookie, jwt }: SetAuthParams) => {
-   delete userData.password;
-
    const jwtAuthData = await jwt.sign(JSON.stringify({ auth: true, ...userData }));
 
    cookie.setCookie('auth', jwtAuthData);
