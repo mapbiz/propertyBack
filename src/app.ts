@@ -19,19 +19,12 @@ import authRouter from "../routes/auth.ts";
 import responce from "./helpers/responce.ts";
 
 import { uniqBy } from "./helpers/uniq.ts";
-import { sessionPlugin } from "elysia-session";
-// @ts-ignore
-import { CookieStore } from "elysia-session/stores/cookie";
-import { BunSQLiteStore } from "elysia-session/stores/bun/sqlite"
-import { Database } from "bun:sqlite";
-
-const database = new Database(":memory:");
-// 2nd argument is the table name
-const store = new BunSQLiteStore(database, "sessions");
 
 const port: number = Bun.env.SERVER_PORT || 8080;
 
-const app: Elysia = new Elysia();
+const app: Elysia = new Elysia({
+   prefix: "/server",
+});
 
 // swagger
 if(Bun.env.NODE_ENV === 'development') {
@@ -106,11 +99,6 @@ app.use(cookie({
    secure: true,
 
 }));
-// app.use(sessionPlugin({
-//    cookieName: "session", // Optional, default is "session"
-//    store,
-//    expireAfter: Number(Bun.env.COOKIE_MAX_AGE!),
-// }))
 
 app.use(bearer());
 app.use(jwt({
