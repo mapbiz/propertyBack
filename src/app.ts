@@ -22,6 +22,8 @@ import { uniqBy } from "./helpers/uniq.ts";
 
 const port: number = Bun.env.SERVER_PORT || 8080;
 
+console.log(port);
+
 const app: Elysia = new Elysia({
    prefix: "/server",
 });

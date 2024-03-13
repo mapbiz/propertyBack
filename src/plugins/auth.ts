@@ -14,7 +14,7 @@ type OptionsAuthPlugin = {
 const authPlugin = () => new Elysia()
 .decorate("auth", {})
 .onBeforeHandle(async ({ set, request, path, cookie, setCookie, removeCookie, jwt }) => {
-   if(path === '/auth/login') return;
+   if(path === '/server/auth/login') return;
 
    if(!["POST", "PUT", "DELETE", "PATCH"].includes(request.method)) return;
    
