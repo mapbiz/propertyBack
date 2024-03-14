@@ -15,10 +15,10 @@ import type { Tenant as TenantType } from "../../types/tenant.types";
 
 @Entity()
 export class Tenant extends BaseEntity {
-   @Property({ nullable: false })
+   @Property({ nullable: false, unique: true })
    public name: string;
 
-   @Property({ nullable: false })
+   @Property({ nullable: false, unique: true })
    public category: string;
 
    @OneToOne({

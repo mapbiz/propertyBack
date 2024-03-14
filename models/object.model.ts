@@ -113,9 +113,6 @@ export const objectModel = new Elysia()
                error: "Панорама должна быть ссылкой",
             }),
             // photos
-            photoMap: t.File({
-               error: "Фотка карты, должна быть фоткой!"
-            }),
             photos: t.Files({
                minItems: 1,
                maxItems: 30,
@@ -249,9 +246,6 @@ export const objectModel = new Elysia()
                
             
                // photos
-               photoMap: t.File({
-                  error: "Фотка карты, должна быть фоткой!"
-               }),
                photos: t.Files({
                   minItems: 1,
                   maxItems: 30,

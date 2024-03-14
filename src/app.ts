@@ -5,7 +5,6 @@ import bearer from "@elysiajs/bearer";
 import { cors } from "@elysiajs/cors";
 import jwt from "@elysiajs/jwt";
 import { cookie } from '@elysiajs/cookie'
-import { swagger } from "@elysiajs/swagger";
 
 import { resolve } from "node:path";
 
@@ -20,32 +19,42 @@ import responce from "./helpers/responce.ts";
 
 import { uniqBy } from "./helpers/uniq.ts";
 
-const port: number = Bun.env.SERVER_PORT || 8080;
+const port: number = Number(Bun.env.SERVER_PORT!) || 8080;
 
-console.log(port);
 
 const app: Elysia = new Elysia({
-   prefix: "/server",
+   prefix: Bun.env.SERVER_BASE_PATH!,
+   cookie: {
+      sameSite: 'none',
+      secure: true,
+   },
+   serve: {
+      port,
+   },
 });
 
-// swagger
-if(Bun.env.NODE_ENV === 'development') {
-   app.use(swagger({
-      path: "/swagger",
-      provider: 'swagger-ui',
-      autoDarkMode: false,
-      documentation: {
-         info: {
-            title: "api docs",
-            version: "0.8.9"
-         },
-      },
-   }))
-};
 
 // Хенделинг
 app.onError(({ error, code, set, body }) => {
+   
 
+   // if(typeof code === 'number') {
+   //    // Хенделинг дб ошибок
+   //    switch(code) {
+   //       case 11000:
+   //          // console.log(JSON.parse(error.key));
+
+   //       return responce.failureWithError({
+   //          set,
+   //          error: {
+   //             field: "",
+   //             message: error,
+   //          },
+   //       })
+   //       // return responce.failureWithErrors()
+   //    };
+   // }
+   // Хенделинг ошибок веба
    switch(code) {
       case "NOT_FOUND":
       return responce.failureNotFound({ set, error: { field: "url", message: "Не найдено!" } });
@@ -99,7 +108,6 @@ app.use(cookie({
    secret: Bun.env.COOKIE_SECRET_CRYPTED!,
    sameSite: 'none',
    secure: true,
-
 }));
 
 app.use(bearer());
@@ -108,7 +116,7 @@ app.use(jwt({
    secret: "secret",
 }))
 app.use(staticPlugin({
-   assets: resolve(Bun.env.SERVER_PUBLIC),
+   assets: resolve(Bun.env.SERVER_PUBLIC!),
 }));
 
 // Собственные плагины
@@ -121,6 +129,7 @@ app.use(authPlugin());
 app.use(apiRouter);
 app.use(authRouter);
 
-app.listen(port, () => console.log(`Server run at: http://${app.server?.hostname}:${app.server?.port}`));
+
+app.listen(port, () => console.log(`Server run at: http://${app.server?.hostname}:${app.server?.port}${Bun.env.SERVER_BASE_PATH!}`));
 
 export default app;

@@ -2,11 +2,9 @@ import {
    Entity, 
    Property, 
    OneToMany, 
-   OneToOne,
    Collection,
    wrap,
 } from "@mikro-orm/mongodb";
-import type { Rel } from "@mikro-orm/mongodb";
 
 import type { 
    TypeObject, 
@@ -120,14 +118,6 @@ export class Objects extends BaseEntity {
    )
    layoutImages = new Collection<Images>(this);
    
-   @OneToOne({
-      owner: true,
-      nullable: true,
-      unique: false,
-      entity: () => Images,
-      serializer: image => image.url,
-   })
-   imageMap?: Rel<Images>;
 
    @OneToMany(
       () => Tenant, 
@@ -184,7 +174,6 @@ export class Objects extends BaseEntity {
       panorama,
       info,
       address,
-      imageMap,
       globalRentFlow,
       payback,
       price,
@@ -197,7 +186,6 @@ export class Objects extends BaseEntity {
 
       this.title = title;
       this.slug = slug(title);
-      this.imageMap = imageMap;
       this.coordinates = coordinates;
       this.description = description;
       this.globalRentFlow = globalRentFlow;

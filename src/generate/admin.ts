@@ -41,5 +41,7 @@ import colors from "colors";
 
    console.log(colors.green("Пользователь успешно создан"));
 
-   return console.log({ login, password: resultedPassword });
+   console.log({ login, password: resultedPassword });
+
+   return process.exit(1);
 })();

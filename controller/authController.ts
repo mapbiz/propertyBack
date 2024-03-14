@@ -45,16 +45,10 @@ export default class AuthController {
 
          await setAuth({ userData: { id: findAdminByLogin.id, login: findAdminByLogin.login,  }, cookie: { cookie, setCookie, removeCookie }, jwt });
 
-         // session.set('test', 'test');
-         // session.updateAccessed();
-         // session.reUpdate();
-
-         // console.log(session.updateAccessed(), session, session.setCache());
 
          return responce.successWithData({
             set,
             data: {
-               token: "",
                message: "Успешный вход"
             },
          })

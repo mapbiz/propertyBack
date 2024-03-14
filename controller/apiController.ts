@@ -60,7 +60,6 @@ export class ApiController {
          metro: body.metro,
          payback: body.payback,
          zone: body.zone,
-         imageMap: new Images(store.upload.photoMap.filename),
          coordinates: {
             lat: body.lat,
             lon: body.lon,
@@ -253,7 +252,6 @@ export class ApiController {
    async editObject({body, set, params, store, request}: CustomRequestParams) {
       try {
          delete body.photos;
-         delete body.photoMap;
          delete body.photosLayout;
 
          let editableObject: Objects | null = await orm.findOne(Objects, {
@@ -282,7 +280,6 @@ export class ApiController {
 
             request.method === 'patch' ? editableObject.layoutImages.add(newLayoutImages): editableObject.layoutImages.set(newLayoutImages);
          };
-         if(!!store.upload.photoMap) editableObject.imageMap = new Images(store.upload.photoMap.filename);
 
          // console.log('zone', body.zone);
          console.log(body.lat);
@@ -452,6 +449,8 @@ export class ApiController {
    ): Promise<ReponceWithoutData | ResponceWithError<string>> {
       const getTentantToDelete: Tenant | null = await orm.findOne(Tenant, {
          id: params.id,
+      }, {
+         populate: ['*']
       });
 
 
@@ -461,12 +460,26 @@ export class ApiController {
             field: 'id',
             message: `Арендатор ${params.id} не найден!`
          },
+      });   
+
+      const getObjectOfDeleteTentant: Objects = await orm.findOne(Objects, {
+         id: getTentantToDelete.object,
+      }, {
+         populate: ["*"],
       });
 
+
+      getObjectOfDeleteTentant.tenantsInfo?.splice(
+         getObjectOfDeleteTentant.tenantsInfo.findIndex(tentantInObject => tentantInObject.tentantId === getTentantToDelete.id),
+         1
+      );
+         
       await orm.removeAndFlush(getTentantToDelete);
 
       return responce.successWithoutData({ set });
+      
    };
+
    async deleteTentantInObject({ set, params, body }: ObjectDeleteTentantInObject) {
       try {
          const getObject: Objects | null = await orm.findOne(Objects, {

@@ -70,7 +70,6 @@ export type Object = {
    description: string;
    images: Omit<Image, 'id'>[];
    layoutImages: Omit<Image, 'id'>[];
-   imageMap: Images,
    panorama: `${'http:' | 'https:'}${string}`;
    coordinates: {
       lat: number;

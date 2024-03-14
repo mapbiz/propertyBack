@@ -45,9 +45,7 @@ const serverLoggerPlugin = new Elysia()
 .decorate('loggerPlugin', { serverResponce, serverRequest, serverError, serverFatalError })
 .onError((params) => {
    const { code, error } = params;
-
-   console.log(code);
-
+   
    if(code !== 'VALIDATION' && !!code) {
       serverError.error(error, code);
       serverFatalError.fatal({ errorCodeOfElysia: code, errorStack: error});
@@ -56,9 +54,7 @@ const serverLoggerPlugin = new Elysia()
 .onRequest(({ loggerPlugin: { serverRequest }, request, set: { status } }) => {
    serverRequest.info(`${request.url} ${colorsOfMethods(request.method)}  ${colorsOfStatuses(status)}`);
 })
-.onResponse(({ body, request, set: { status }, loggerPlugin: { serverResponce } }) => {
-   console.log(body);
-   
+.onResponse(({ request, set: { status }, loggerPlugin: { serverResponce } }) => {
    serverResponce.info(`${ request.url } ${ colorsOfMethods(request.method) } ${colorsOfStatuses(status)}`);
 });
 
