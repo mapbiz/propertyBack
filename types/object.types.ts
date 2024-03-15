@@ -40,7 +40,7 @@ export type ObjectPrice = {
 export type ObjectInfo = {
    square: number;
    floor: number;
-   countEntrance: number;
+   countEntrance: string;
    glazing: number;
    typeWindow: string;
    layout: string;

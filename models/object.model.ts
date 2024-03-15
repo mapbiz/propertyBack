@@ -67,7 +67,7 @@ export const objectModel = new Elysia()
                t.String({ error: "Описание планировки может быть только строкой!" })
             ),
             infoCountEntrance: t.Optional(
-               t.Numeric({ error: "Количество входов может быть только нумероподобным числом!" })
+               t.String({ error: "Количество входов может быть только нумероподобным числом!" })
             ),
             infoEnter: t.Optional(
                t.String({ error: "Вход может быть только строкой!" })
@@ -219,7 +219,7 @@ export const objectModel = new Elysia()
                infoSquare: t.Numeric({ error: "Площадь может быть только нумероподобным числом!" }),
                infoTypeWindow: t.String({ error: "Тип окна может быть только строкой!" }),
                infoLayout: t.String({ error: "Описание планировки может быть только строкой!" }),
-               infoCountEntrance: t.Numeric({ error: "Количество входов может быть только нумероподобным числом!" }),
+               infoCountEntrance: t.String({ error: "Количество входов может быть только нумероподобным числом!" }),
                infoEnter: t.String({ error: "Вход может быть только строкой!" }),
                infoCeilingHeight: t.String({ error: "Высота потолков может быть только строкой!" }),
                infoFinishing: t.String({ error: "Отделка может быть только строкой!" }),
