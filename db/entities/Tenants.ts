@@ -2,9 +2,11 @@ import {
    Property, 
    Entity, 
    OneToOne,
-   ManyToOne,
-} from "@mikro-orm/core";
-import type { Rel } from "@mikro-orm/core"; 
+   ManyToMany,
+   Collection,
+   wrap
+} from "@mikro-orm/mongodb";
+import type { EntityDTO, Rel } from "@mikro-orm/core"; 
 
 import { BaseEntity } from "./BaseEntity.ts";
 import { Objects } from "./Object.ts"; 
@@ -18,7 +20,7 @@ export class Tenant extends BaseEntity {
    @Property({ nullable: false, unique: true })
    public name: string;
 
-   @Property({ nullable: false, unique: true })
+   @Property({ nullable: false, unique: false })
    public category: string;
 
    @OneToOne({
@@ -30,14 +32,23 @@ export class Tenant extends BaseEntity {
    }) 
    logo!: Rel<Images>;
 
-   @ManyToOne(() => Objects, {
-      mapToPk: true,
-      serializedPrimaryKey: true,
-      nullable: true,
-      default: null,
-      unique: false,
-   })
-   object!: Rel<Objects>
+   @ManyToMany(
+      () => Objects, 
+      objects => objects.tenants,
+      {
+         owner: false,
+      }
+   )
+   objects: Collection<Objects> = new Collection<Objects>(this); 
+
+   toJSON(strict = true, strip: unknown, ...args: never[]) {
+      const tentant = wrap(this, true).toObject([...args]);
+
+      // @ts-ignore
+      delete tentant.objects;
+
+      return tentant;
+   };
 
    constructor({
       name, 

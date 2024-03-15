@@ -2,6 +2,7 @@ import {
    Entity, 
    Property, 
    OneToMany, 
+   ManyToMany,
    Collection,
    wrap,
 } from "@mikro-orm/mongodb";
@@ -119,12 +120,11 @@ export class Objects extends BaseEntity {
    layoutImages = new Collection<Images>(this);
    
 
-   @OneToMany(
-      () => Tenant, 
-      'object', 
-      { 
-         unique: false, 
-         nullable: true, 
+   @ManyToMany(
+      () => Tenant,
+      'objects',
+      {
+         owner: true,
          serializer: (tenants: Collection<Tenant, object>) => {
             return tenants.map(tentant => {
                return {
@@ -137,7 +137,7 @@ export class Objects extends BaseEntity {
          },
       }
    )
-   tenants = new Collection<Tenant>(this);
+   tenants: Collection<Tenant> = new Collection<Tenant>(this);
    
    // @ts-ignore
    toJSON(strict = true, strip: unknown, ...args: never[]) {

@@ -189,7 +189,9 @@ export class ApiController {
       return responce.successWithData({ set, data: getObjects });
    }
    async getTentants({ set }: CustomRequestParams): Promise<ReponceWithoutData | ResponceWithData<Tenant[]>> {
-      const allTentants: Tenant[] | [] = await orm.findAll(Tenant);
+      const allTentants: Tenant[] | [] = await orm.findAll(Tenant, {
+         exclude: ['objects'],
+      });
 
       if(allTentants.length === 0) return responce.successWithoutData({ set });
  
@@ -221,6 +223,8 @@ export class ApiController {
 
       let editableTentant: Tenant | null = await orm.findOne(Tenant, {
          id: params.id,
+      }, {
+         exclude: ['objects']
       });
 
       if(!editableTentant) return responce.failureNotFound({ 
@@ -461,18 +465,20 @@ export class ApiController {
             message: `Арендатор ${params.id} не найден!`
          },
       });   
+      
+      getTentantToDelete.objects.toArray().forEach(async (objectRemoveTentant) => {
+         const getObjectRemoveTentant: Objects = await orm.findOne(Objects, {
+            id: objectRemoveTentant.id,
+         }, { populate: ['*'] });
 
-      const getObjectOfDeleteTentant: Objects = await orm.findOne(Objects, {
-         id: getTentantToDelete.object,
-      }, {
-         populate: ["*"],
+         getObjectRemoveTentant.tenantsInfo?.splice(
+            getObjectRemoveTentant.tenantsInfo.findIndex(tentantInObject =>  tentantInObject.tentantId === getTentantToDelete.id),
+            1
+         );
+         getObjectRemoveTentant.tenants.remove(getTentantToDelete);
+
+         await orm.flush();
       });
-
-
-      getObjectOfDeleteTentant.tenantsInfo?.splice(
-         getObjectOfDeleteTentant.tenantsInfo.findIndex(tentantInObject => tentantInObject.tentantId === getTentantToDelete.id),
-         1
-      );
          
       await orm.removeAndFlush(getTentantToDelete);
 
