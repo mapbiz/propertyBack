@@ -261,7 +261,7 @@ export class ApiController {
          let editableObject: Objects | null = await orm.findOne(Objects, {
             id: params.id,
          }, {
-            populate: ["layoutImages", "imageMap", "images", "tenants"],
+            populate: ["layoutImages", "images", "tenants"],
          });
 
          if(editableObject === null) return responce.failureNotFound({ set, error: { field: "id", message: `Обьект ${params.id} не найден!` } });
@@ -284,9 +284,6 @@ export class ApiController {
 
             request.method === 'patch' ? editableObject.layoutImages.add(newLayoutImages): editableObject.layoutImages.set(newLayoutImages);
          };
-
-         // console.log('zone', body.zone);
-         console.log(body.lat);
          const clearEmptyFields = objectEmptyFilter(body, [Object.keys(body)]),
          renameBody = dottedFieldToNestedObject(
             objectRenameFields({
