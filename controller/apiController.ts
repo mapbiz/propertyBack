@@ -59,6 +59,7 @@ export class ApiController {
          address: body.address,
          metro: body.metro,
          payback: body.payback,
+         agentRemuneration: body.agentRemuneration,
          zone: body.zone,
          coordinates: {
             lat: body.lat,
