@@ -267,7 +267,7 @@ export class ApiController {
       };
 
       if(!!body?.name) {
-         const tryFindTentant = await orm.find(Tenant, {
+         const tryFindTentant = await orm.findOne(Tenant, {
             name: body.name,
          });
 
@@ -325,7 +325,7 @@ export class ApiController {
          };
 
          if(!!body?.title) {
-            const tryFindObject = await orm.find(Objects, {
+            const tryFindObject = await orm.findOne(Objects, {
                title: body.title,
             });
 
