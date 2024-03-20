@@ -1,20 +1,13 @@
 import { Elysia } from "elysia";
 
-import { Admin } from "../../db/entities/Admin";
-import orm from "../../db";
-
 import responce from "../helpers/responce";
 
 import { validAuth } from "../helpers/authJwt";
 
-type OptionsAuthPlugin = {
-   unsafeMethods?: string[];
-};
-
 const authPlugin = () => new Elysia()
 .decorate("auth", {})
 .onBeforeHandle(async ({ set, request, path, cookie, setCookie, removeCookie, jwt }) => {
-   if(path === '/server/auth/login') return;
+   if(path === `${Bun.env.SERVER_BASE_PATH!}/auth/login`) return;
 
    if(!["POST", "PUT", "DELETE", "PATCH"].includes(request.method)) return;
    

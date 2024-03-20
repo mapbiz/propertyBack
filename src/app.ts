@@ -36,24 +36,6 @@ const app: Elysia = new Elysia({
 
 // Хенделинг
 app.onError(({ error, code, set, body }) => {
-   
-
-   // if(typeof code === 'number') {
-   //    // Хенделинг дб ошибок
-   //    switch(code) {
-   //       case 11000:
-   //          // console.log(JSON.parse(error.key));
-
-   //       return responce.failureWithError({
-   //          set,
-   //          error: {
-   //             field: "",
-   //             message: error,
-   //          },
-   //       })
-   //       // return responce.failureWithErrors()
-   //    };
-   // }
    // Хенделинг ошибок веба
    switch(code) {
       case "NOT_FOUND":

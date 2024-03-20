@@ -52,6 +52,18 @@ export class ApiController {
          },
       })
 
+      const tryFindObject = await orm.findOne(Objects, {
+         title: body.title,
+      });
+
+      if(tryFindObject !== null) return responce.failureWithError({
+         set,
+         error: {
+            field: 'title',
+            message: 'Заголовок должен быть уникальным',
+         }
+      })
+
       // @ts-ignore
       const newObject: Objects = new Objects({
          title: body.title,
@@ -164,6 +176,18 @@ export class ApiController {
       return responce.successWithData({ set, data: getObject });
    };
    async createNewTentant({ body, set, store }: TenantCreateNewRequest): Promise<ResponceWithData<Tenant>> {
+      const tryFindTentant = await orm.findOne(Tenant, {
+         name: body.name,
+      });
+
+      if(tryFindTentant !== null) return responce.failureWithError({
+         set,
+         error: {
+            field: "name",
+            message: "Имя арендатора должно быть уникально!"
+         },
+      })
+
       const newTentant: Tenant = new Tenant({
          name: body.name,
          logo: new Images(store.upload?.all.filename),
