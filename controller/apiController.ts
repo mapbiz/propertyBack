@@ -297,6 +297,20 @@ export class ApiController {
          delete body.photos;
          delete body.photosLayout;
 
+         if(!!body?.title) {
+            const tryFindObject = await orm.findOne(Objects, {
+               title: body.title,
+            });
+
+            if(tryFindObject !== null) return responce.failureWithError({
+               set,
+               error: {
+                  field: "title",
+                  message: "Поле title должно быть уникальным"
+               },
+            })
+         };
+
          let editableObject: Objects | null = await orm.findOne(Objects, {
             id: params.id,
          }, {
@@ -322,20 +336,6 @@ export class ApiController {
 
 
             request.method === 'patch' ? editableObject.layoutImages.add(newLayoutImages): editableObject.layoutImages.set(newLayoutImages);
-         };
-
-         if(!!body?.title) {
-            const tryFindObject = await orm.findOne(Objects, {
-               title: body.title,
-            });
-
-            if(tryFindObject !== null) return responce.failureWithError({
-               set,
-               error: {
-                  field: "title",
-                  message: "Поле title должно быть уникальным"
-               },
-            })
          };
 
          const clearEmptyFields = objectEmptyFilter(body, [Object.keys(body)]),
