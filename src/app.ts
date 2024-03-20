@@ -33,7 +33,6 @@ const app: Elysia = new Elysia({
    },
 });
 
-
 // Хенделинг
 app.onError(({ error, code, set, body }) => {
    // Хенделинг ошибок веба

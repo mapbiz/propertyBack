@@ -266,6 +266,20 @@ export class ApiController {
          editableTentant.logo = newLogo;
       };
 
+      if(!!body?.name) {
+         const tryFindTentant = await orm.find(Tenant, {
+            name: body.name,
+         });
+
+         if(tryFindTentant !== null) return responce.failureWithError({
+            set,
+            error: {
+               field: "name",
+               message: "Имя арендатора должно быть уникально!"
+            },
+         })
+      };
+
       wrap(editableTentant).assign(
          {
          ...objectEmptyFilter(body, [Object.keys(body)]),
@@ -309,6 +323,21 @@ export class ApiController {
 
             request.method === 'patch' ? editableObject.layoutImages.add(newLayoutImages): editableObject.layoutImages.set(newLayoutImages);
          };
+
+         if(!!body?.title) {
+            const tryFindObject = await orm.find(Objects, {
+               title: body.title,
+            });
+
+            if(tryFindObject !== null) return responce.failureWithError({
+               set,
+               error: {
+                  field: "title",
+                  message: "Поле title должно быть уникальным"
+               },
+            })
+         };
+
          const clearEmptyFields = objectEmptyFilter(body, [Object.keys(body)]),
          renameBody = dottedFieldToNestedObject(
             objectRenameFields({
