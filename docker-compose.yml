@@ -10,10 +10,10 @@ services:
       MONGO_INITDB_DATABASE: property
     ports: 
       - 27018:27017
-  server: 
-    build: .
-    container_name: server
-    links:
-     - "db:mongo"
-    ports: 
-      - 8080:8080
+  # server: 
+  #   build: .
+  #   container_name: server
+  #   links:
+  #    - "db:mongo"
+  #   ports: 
+  #     - 8080:8080

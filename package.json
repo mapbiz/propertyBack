@@ -16,6 +16,7 @@
     "mongodb": "^5.2.0",
     "object-path": "^0.11.8",
     "reflect-metadata": "^0.2.1",
+    "sharp": "^0.33.3",
     "slugify": "^1.6.6",
     "typeorm": "^0.3.20",
     "typescript": "^5.3.3"
@@ -29,6 +30,7 @@
     "generate:admin": "bun ./src/generate/admin.ts",
     "generate:secrets": "bun ./src/generate/secret.ts",
     "generate:rsa-keys": "bun ./src/generate/rsaKeys.ts",
+    "generate:convert-files": "bun ./src/generate/convertFiles.ts",
     "mikro-orm": "NODE_OPTIONS='--loader ts-node/esm --no-warnings' mikro-orm",
     "db:update": "NODE_OPTIONS='--loader ts-node/esm --no-warnings' mikro-orm schema:update --config ./db/config.ts --run"
   },

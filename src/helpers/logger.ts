@@ -22,11 +22,19 @@ log4js.configure({
          type: "fileSync",
          filename: "logs/mongo.log",
       },
+      fileUpload: {
+         type: 'file',
+         filename: "logs/file-uploaded-errors.log",
+      },
    },
    categories: {
       default: {
          appenders: ['default'],
          level: "debug",
+      },
+      fileUpload: {
+         appenders: ['fileUpload'],
+         level: 'error',
       },
       dbError: {
          appenders: ['db'],
@@ -58,3 +66,4 @@ export const serverRequest: log4js.Logger = log4js.getLogger('serverRequest');
 export const serverError: log4js.Logger = log4js.getLogger('serverError');
 export const serverFatalError: log4js.Logger = log4js.getLogger('serverFatalError');
 export const dbError: log4js.Logger = log4js.getLogger('dbError');
+export const fileUpload: log4js.Logger = log4js.getLogger('fileUpload');

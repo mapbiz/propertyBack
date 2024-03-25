@@ -9,8 +9,9 @@ import { safeMethods } from "../../types/method.types";
 import type { TempFile, File } from "../../types/fileUpload.types"; 
 
 import { fileTypeFromBlob } from "file-type";
+import { convertToWebp } from "../helpers/photoConvert";
 
-const fileUploadDist = resolve(Bun.env.SERVER_PUBLIC); 
+const fileUploadDist = resolve(Bun.env.SERVER_PUBLIC!); 
 
 const uploadFilePlugin: Elysia = new Elysia()
 .decorate('upload', {}) 
@@ -58,17 +59,19 @@ const uploadFilePlugin: Elysia = new Elysia()
 
    const uploadedImages: File[] = await Promise.all(filesBlobs.map(async (fileBlob) => {
       const extensionOfFIle = await fileTypeFromBlob(fileBlob.file),
-      generateFileName = `${randomUUID()}.${extensionOfFIle?.ext}`;
+      generateFileName = `${randomUUID()}.webp`;
       
       let createFilePath = resolve(fileUploadDist, generateFileName);
 
-      const createdFile = await writeFile(createFilePath, new Buffer(await fileBlob.file.arrayBuffer()));
-      
+      //const createdFile = await writeFile(createFilePath, new Buffer(await fileBlob.file.arrayBuffer()));
+      const { generatedFileName } = await convertToWebp({
+         imageBuffer: new Buffer(await fileBlob.file.arrayBuffer()),
+      });
 
       const resultFile: File = {
          originalFileName: fileBlob.originalFileName,
          field: fileBlob.field,
-         filename: generateFileName,
+         filename: generatedFileName,
          size: fileBlob.size, 
          reWriteFilename(newFilename) {
             rename(createFilePath, resolve(fileUploadDist, newFilename));

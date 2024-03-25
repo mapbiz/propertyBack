@@ -24,12 +24,13 @@ const port: number = Number(Bun.env.SERVER_PORT!) || 8080;
 
 const app: Elysia = new Elysia({
    prefix: Bun.env.SERVER_BASE_PATH!,
+   analytic: true,
    cookie: {
       sameSite: 'none',
       secure: true,
    },
    serve: {
-      port,
+     port: Bun.env.SERVER_PORT!, 
    },
 });
 
@@ -98,6 +99,9 @@ app.use(jwt({
 }))
 app.use(staticPlugin({
    assets: resolve(Bun.env.SERVER_PUBLIC!),
+   staticLimit: 2048,
+   // noCache: true,
+   // alwaysStatic: true,
 }));
 
 // Собственные плагины
