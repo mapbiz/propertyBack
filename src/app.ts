@@ -1,6 +1,5 @@
 import { Elysia } from "elysia";
 
-import { staticPlugin } from '@elysiajs/static';
 import bearer from "@elysiajs/bearer";
 import { cors } from "@elysiajs/cors";
 import jwt from "@elysiajs/jwt";
@@ -8,6 +7,7 @@ import { cookie } from '@elysiajs/cookie'
 
 import { resolve } from "node:path";
 
+import staticPlugin from "./plugins/static.ts";
 import serverLoggerPlugin from "./plugins/logger";
 import uploadFilePlugin from "./plugins/fileUpload";
 import authPlugin from "./plugins/auth.ts";
@@ -18,6 +18,7 @@ import authRouter from "../routes/auth.ts";
 import responce from "./helpers/responce.ts";
 
 import { uniqBy } from "./helpers/uniq.ts";
+
 
 const port: number = Number(Bun.env.SERVER_PORT!) || 8080;
 
@@ -30,7 +31,7 @@ const app: Elysia = new Elysia({
       secure: true,
    },
    serve: {
-     port: Bun.env.SERVER_PORT!, 
+     port: port,
    },
 });
 
@@ -97,17 +98,23 @@ app.use(jwt({
    name: "jwt",
    secret: "secret",
 }))
-app.use(staticPlugin({
-   assets: resolve(Bun.env.SERVER_PUBLIC!),
-   staticLimit: 2048,
-   // noCache: true,
-   // alwaysStatic: true,
-}));
+
+// app.use(staticPlugin({
+//    assets: resolve(Bun.env.SERVER_PUBLIC!),
+//    staticLimit: 2048,
+//    headers: {
+//       'Content-Type': "image/webp",
+//    },
+//    alwaysStatic: true,
+//    // noCache: true,
+//    // alwaysStatic: true,
+// }));
 
 // Собственные плагины
 app.use(uploadFilePlugin);
 app.use(serverLoggerPlugin);
 app.use(authPlugin());
+app.use(staticPlugin({}))
 
 
 // Все пути с префиксами

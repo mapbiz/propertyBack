@@ -1,10 +1,10 @@
 {
   "dependencies": {
+    "@bogeychan/elysia-etag": "^0.0.5",
     "@elysiajs/bearer": "^0.8.0",
     "@elysiajs/cookie": "^0.8.0",
     "@elysiajs/cors": "^0.8.0",
     "@elysiajs/jwt": "^0.8.0",
-    "@elysiajs/static": "^0.8.1",
     "@mikro-orm/cli": "^6.1.6",
     "@mikro-orm/core": "^6.1.6",
     "@mikro-orm/mongodb": "^6.1.6",
