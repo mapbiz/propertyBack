@@ -58,15 +58,14 @@ const uploadFilePlugin: Elysia = new Elysia()
    };
 
    const uploadedImages: File[] = await Promise.all(filesBlobs.map(async (fileBlob) => {
-      const extensionOfFIle = await fileTypeFromBlob(fileBlob.file),
-      generateFileName = `${randomUUID()}.webp`;
-      
-      let createFilePath = resolve(fileUploadDist, generateFileName);
-
-      //const createdFile = await writeFile(createFilePath, new Buffer(await fileBlob.file.arrayBuffer()));
-      const { generatedFileName } = await convertToWebp({
+      const extensionOfFIle = await fileTypeFromBlob(fileBlob.file);
+   
+      const { generatedFileName, createdFilePath } = await convertToWebp({
          imageBuffer: new Buffer(await fileBlob.file.arrayBuffer()),
+         extension: (extensionOfFIle.ext as string),
       });
+
+      let createFilePath = createdFilePath;
 
       const resultFile: File = {
          originalFileName: fileBlob.originalFileName,
