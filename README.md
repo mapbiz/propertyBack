@@ -6,8 +6,8 @@
 	1. [Загрузка файлов](#plugins-file)
 	2. [Логирование](#plugins-logger)
 	3. ~~[Очистка нулей](#plugins-nullable)~~ 
-	   > Удален
-
+		> Удален
+	4. [Статика](#plugins-static)
 
 <h1  id="deploy"> Разворот </h1>
 
@@ -166,3 +166,17 @@ app.post('/test', ({ store: File | File[] }) => {
 #### Решение
 Плагин `nullableTransform` как раз таки нужен для простого парсинга обьектов `body/query/params`
 Встраиваясь в [onBeforeHandle](https://elysiajs.com/life-cycle/before-handle.html) он очищает значения после [transform](https://elysiajs.com/life-cycle/transform.html), выдавая `body` готовые и чистые значения
+
+
+<h3 id="plugins-static"> Статика </h3>
+
+**Elysia** имеет плагин [статики](https://elysiajs.com/plugins/static.html) но, он не коректно ставит `headers` для картинок <br/>
+Поэтому был написан самописный плагин статики, имеет в своих зависимостях [ETag](https://github.com/bogeychan/elysia-etag) <br/>
+#### Настроки
+```js
+	app.use(staticPlugin({
+		path: "/public", // Путь по которому будут доступны картинки
+		pathToPublicDir: "./", // Путь где будут храниться все файлы 
+		ignore = [".git", ".env", ".zip", ".gz", ".7z", ".s7z", ".apk", ".crt", ".key", ".pem", ".tar"], // Расширения которые не будут индексироваться
+	}))
+```

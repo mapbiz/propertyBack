@@ -114,7 +114,7 @@ app.use(jwt({
 app.use(uploadFilePlugin);
 app.use(serverLoggerPlugin);
 app.use(authPlugin());
-app.use(staticPlugin({}))
+app.use(staticPlugin({}));
 
 
 // Все пути с префиксами
