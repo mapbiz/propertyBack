@@ -1,11 +1,15 @@
-import { t } from "elysia";
-
 import type { Context } from "elysia";
 
-import type { ReponceWithoutData, ResponceWithData, ResponceWithError, ReponceWithReason, ErrorObject, ResponceWithErrors } from "../types/responce.types"; 
-import type { StoreUpload } from "../types/fileUpload.types"; 
+import type { 
+   ReponceWithoutData, 
+   ResponceWithData, 
+   ResponceWithError, 
+   ReponceWithReason, 
+   ErrorObject, 
+   ResponceWithErrors 
+} from "../../types/responce.types"; 
 
-import type { TenantCreateNewRequest } from "../types/tenant.types";
+import type { TenantCreateNewRequest } from "../../types/tenant.types";
 
 import { 
    ObjectCreateNewRequest,
@@ -14,25 +18,24 @@ import {
    ObjectDeleteTentantInObject,
    ObjectSlugRequest,
    ObjectEditTentantsRequest,
-} from "../types/object.types";
-import { CustomRequestParams } from "../types/request.types"; 
+} from "../../types/object.types";
+import { CustomRequestParams } from "../../types/request.types"; 
 
-import { objectEmptyFilter } from "../src/helpers/filter";
-import { objectRenameFields, dottedFieldToNestedObject } from "../src/helpers/converTo";
+import { objectEmptyFilter } from "../helpers/filter";
+import { objectRenameFields, dottedFieldToNestedObject } from "../helpers/converTo";
 
-import orm from "../db";
-import { Objects } from "../db/entities/Object"; 
-import { Images } from "../db/entities/Images";
-import { Tenant } from "../db/entities/Tenants"; 
+import orm from "../../db";
+import { Objects } from "../../db/entities/Object"; 
+import { Images } from "../../db/entities/Images";
+import { Tenant } from "../../db/entities/Tenants"; 
 
-import responce from "../src/helpers/responce";
+import responce from "../helpers/responce";
 import { Loaded, wrap } from "@mikro-orm/core";
 
-import { slug } from "../src/helpers/slug";
+import { slug } from "../helpers/slug";
 import { tenantModel } from "../models/tentan.model";
 
-export class ApiController {
-
+export default class ApiController {
    // create
    async createNewObject({ body, set, store }: ObjectCreateNewRequest): Promise<ResponceWithData<Objects> | ReponceWithReason> {
       if(store?.upload?.all === undefined || (body.photos === undefined && body.photosLayout === undefined)) return responce.failureWithReason({ set, reason: "У обьекта не может не быть фотки" });
@@ -73,6 +76,7 @@ export class ApiController {
          payback: body.payback,
          agentRemuneration: body.agentRemuneration,
          zone: body.zone,
+         isNew: body.isNew,
          coordinates: {
             lat: body.lat,
             lon: body.lon,
@@ -208,7 +212,7 @@ export class ApiController {
             params.type:
             { $ne: 'hidden' }
          },
-         fields: ['images', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates'],
+         fields: ['images', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates', 'isNew'],
          populate: ['images'],
       });
       return responce.successWithData({ set, data: getObjects });

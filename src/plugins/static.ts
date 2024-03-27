@@ -6,7 +6,6 @@ import { exists, readFile, stat } from "node:fs/promises";
 
 import { MimeType, fileTypeFromBuffer } from "file-type";
 import responce from "../helpers/responce";
-import { randomUUID } from "node:crypto";
 
 
 type Options = {

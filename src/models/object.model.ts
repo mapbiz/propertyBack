@@ -31,7 +31,11 @@ export const objectModel = new Elysia()
             lat: t.Numeric({ error: "Широта может быть только нумероподобным числом!" }),
             lon: t.Numeric({ error: "Долгота может быть только нумероподобным числом!" }),
 
+            
             // all options field
+            isNew: t.Optional(
+               t.BooleanString({ error: "Новый должна быть booleanLike строкой!" })
+            ),
             metro: t.Optional(
                t.String({ error: "Метро должен быть строкой!" }),
             ),
@@ -256,7 +260,8 @@ export const objectModel = new Elysia()
                   maxItems: 30,
                   error: "Фото планировки обьекта могут быть от 1 до 30!"
                }),
-            
+               
+               isNew: t.BooleanString({ error: "Новый должна быть booleanLike строкой!" })
             },
             {
                error: "Такое поле не предусмотрено!",

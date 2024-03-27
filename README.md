@@ -177,6 +177,6 @@ app.post('/test', ({ store: File | File[] }) => {
 	app.use(staticPlugin({
 		path: "/public", // Путь по которому будут доступны картинки
 		pathToPublicDir: "./", // Путь где будут храниться все файлы 
-		ignore = [".git", ".env", ".zip", ".gz", ".7z", ".s7z", ".apk", ".crt", ".key", ".pem", ".tar"], // Расширения которые не будут индексироваться
+		ignore: [".git", ".env", ".zip", ".gz", ".7z", ".s7z", ".apk", ".crt", ".key", ".pem", ".tar"], // Расширения которые не будут индексироваться
 	}))
 ```

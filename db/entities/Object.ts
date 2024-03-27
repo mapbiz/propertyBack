@@ -95,6 +95,9 @@ export class Objects extends BaseEntity {
    @Property({ nullable: false, default: null })
    public zone: boolean;
 
+   @Property({ nullable: false, unique: false, default: false })
+   public isNew: boolean;
+
    @OneToMany(
       () => Images, 
       'object', 
@@ -181,6 +184,7 @@ export class Objects extends BaseEntity {
       agentRemuneration,
       coordinates,
       zone,
+      isNew
    }: Omit<ObjectType, 'type'>) {
       super();
 
@@ -199,6 +203,7 @@ export class Objects extends BaseEntity {
       this.zone = zone; 
       this.tenantsInfo = [];
       this.type = computedType({ payback, price, globalRentFlow });
+      this.isNew = isNew;
    };
 };
 

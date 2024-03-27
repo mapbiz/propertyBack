@@ -76,6 +76,7 @@ export type Object = {
       lon: number;
    };
 
+   isNew: boolean; 
    agentRemuneration?: number;
    zone: boolean;
 
@@ -140,6 +141,8 @@ export type ObjectRequest = Omit<Object, 'slug' | 'info' | 'tentantsInfo' | 'pri
    // only ready bussiness
    globalRentFlowYear: number;
    globalRentFlowMouth: number;
+
+   isNew: boolean;
 }
 
 export type ObjectCreateNewRequest = Pick<CustomRequestParams<ObjectRequest, Context['set'], StoreUpload>, 'body' | 'set' | 'store'>;

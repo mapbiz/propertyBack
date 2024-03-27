@@ -2,14 +2,14 @@ import { Elysia, t } from "elysia";
 
 const router: Elysia = new Elysia({ prefix: '/api/v1' });
 
-import { objectConvertField } from "../src/helpers/converTo";
+import { objectConvertField } from "../helpers/converTo";
 
 import { objectModel } from "../models/object.model"; 
 import { tenantModel } from "../models/tentan.model"; 
 
-import responce from "../src/helpers/responce";
+import responce from "../helpers/responce";
 
-import { ApiController } from "../controller/apiController";
+import ApiController from "../controller/apiController";
 
 const controller: ApiController = new ApiController();
 

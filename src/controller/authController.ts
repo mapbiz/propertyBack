@@ -1,10 +1,8 @@
-import responce from "../src/helpers/responce";
+import responce from "../helpers/responce";
 
-import { Admin } from "../db/entities/Admin";
-import orm from "../db";
-import { setAuth, validAuth } from "../src/helpers/authJwt";
-
-import { compare } from "bcrypt-ts";
+import { Admin } from "../../db/entities/Admin";
+import orm from "../../db";
+import { setAuth, validAuth } from "../helpers/authJwt";
 
 export default class AuthController {
    async login({ set, body, cookie, setCookie, removeCookie, jwt }) {
