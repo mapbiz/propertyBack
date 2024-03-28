@@ -113,9 +113,11 @@ export const objectModel = new Elysia()
             ),
             
             // panorama
-            panorama: t.String({
-               error: "Панорама должна быть ссылкой",
-            }),
+            panorama: t.Optional(
+               t.String({
+                  error: "Панорама должна быть ссылкой",
+               })
+            ),
             // photos
             photos: t.Files({
                minItems: 1,
