@@ -6,6 +6,6 @@ export const slug = (string: string) => slugify(
       locale: 'ru',
       lower: true,
       replacement: "-",
-      remove: new RegExp(`"|_|'|\``)
+      remove: new RegExp(`"|_|'|\`|,|.|:|;`)
    }  
 )  
