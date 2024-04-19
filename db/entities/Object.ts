@@ -49,7 +49,7 @@ export class Objects extends BaseEntity {
    @Property({ nullable: false, unique: true })
    public title: string;
 
-   @Property({ nullable: false, unique: true })
+   @Property({ nullable: false, unique: false })
    public slug: string;
 
    @Property({ nullable: true, unique: false })
