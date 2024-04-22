@@ -3,9 +3,9 @@ import slugify from "slugify";
 export const slug = (string: string) => slugify(
    string,
    {  
-      locale: 'ru',
+      // locale: 'ru',
       lower: true,
       replacement: "-",
-      remove: new RegExp(`"|_|'|\`|,|.|:|;`)
+      // remove: new RegExp(`"|_|'|\`|,|.|:|;`)
    }  
 )  

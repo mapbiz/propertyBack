@@ -188,6 +188,8 @@ export class Objects extends BaseEntity {
    }: Omit<ObjectType, 'type'>) {
       super();
 
+      console.log(slug(title), title);
+
       this.title = title;
       this.slug = slug(title);
       this.coordinates = coordinates;
