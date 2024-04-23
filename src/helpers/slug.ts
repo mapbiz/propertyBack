@@ -7,6 +7,14 @@ slugify.extend({
    '%': 'percent',
    '$': 'dollar',
    ' ': 'unbreak-space',
+   '^': 'carret',
+   '№': 'index',
+   '!': 'exclamation-point',
+   '?': 'question-mark',
+   '.': 'dot',
+   ',': 'comma',
+   '~': 'tilda',
+   '`': 'e',
 })
 
 export const slug = (string: string) => slugify(
