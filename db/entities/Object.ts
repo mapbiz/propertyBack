@@ -181,8 +181,6 @@ export class Objects extends BaseEntity {
          }, 
 
       });
-      
-      console.log(tryToFindSlug);
 
       if(tryToFindSlug.length >= 1) entity.slug = slug(`${entity.title}-${tryToFindSlug.length}`);
 
