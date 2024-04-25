@@ -56,16 +56,16 @@ export default class ApiController {
       })
 
       const tryFindObject = await orm.findOne(Objects, {
-         title: body.title,
+         slug: slug(body.title),
       });
-
-      if(tryFindObject !== null) return responce.failureWithError({
-         set,
-         error: {
-            field: 'title',
-            message: 'Заголовок должен быть уникальным',
-         }
-      })
+      
+      // if(tryFindObject !== null) return responce.failureWithError({
+      //    set,
+      //    error: {
+      //       field: 'title',
+      //       message: 'Заголовок должен быть уникальным',
+      //    }
+      // })
 
       // @ts-ignore
       const newObject: Objects = new Objects({
@@ -296,14 +296,14 @@ export default class ApiController {
       return responce.successWithData({ set, data: editableTentant });
 
    };
-   async editObject({body, set, params, store, request}: CustomRequestParams) {
+   async editObject({body, set, params, store, request}: CustomRequestParams<Objects>) {
       try {
          delete body.photos;
          delete body.photosLayout;
 
          if(!!body?.title) {
             const tryFindObject = await orm.findOne(Objects, {
-               title: body.title,
+               title: body.title.toLowerCase(),
             });
 
             if(tryFindObject !== null) return responce.failureWithError({

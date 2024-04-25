@@ -5,6 +5,8 @@ import {
    ManyToMany,
    Collection,
    wrap,
+   BeforeCreate,
+   EntityManager,
 } from "@mikro-orm/mongodb";
 
 import type { 
@@ -46,7 +48,7 @@ export class Objects extends BaseEntity {
    @Property({ nullable: false, unique: false, default: "hidden" })
    public type?: TypeObject;
 
-   @Property({ nullable: false, unique: true })
+   @Property({ nullable: false, unique: false })
    public title: string;
 
    @Property({ nullable: false, unique: false })
@@ -171,6 +173,22 @@ export class Objects extends BaseEntity {
       return resultObject;
    };
 
+   @BeforeCreate()
+   async beforeCreate({ em, entity }: { em: EntityManager, entity: ObjectType }) {
+      const tryToFindSlug = await em.find(Objects, {
+         slug: {
+            $re: slug(entity.title),
+         }, 
+
+      });
+      
+      console.log(tryToFindSlug);
+
+      if(tryToFindSlug.length >= 1) entity.slug = slug(`${entity.title}-${tryToFindSlug.length}`);
+
+      return entity;
+   };
+
    constructor({
       title,
       description,
@@ -187,8 +205,6 @@ export class Objects extends BaseEntity {
       isNew
    }: Omit<ObjectType, 'type'>) {
       super();
-
-      console.log(slug(title), title);
 
       this.title = title;
       this.slug = slug(title);

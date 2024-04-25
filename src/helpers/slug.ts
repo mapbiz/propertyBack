@@ -15,6 +15,8 @@ slugify.extend({
    ',': 'comma',
    '~': 'tilda',
    '`': 'e',
+   '"': 'quot',
+   [`'`]: 'apos',
 })
 
 export const slug = (string: string) => slugify(
@@ -23,6 +25,7 @@ export const slug = (string: string) => slugify(
       lower: true,
       replacement: "-",
       trim: true,
+      strict: true,
       remove: /[*+~.()'"!:@?!,:;\[\]\\|\/_-`{}%]/gm,
    }  
 )  
