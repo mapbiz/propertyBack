@@ -7,6 +7,7 @@ import {
    wrap,
    BeforeCreate,
    EntityManager,
+   BeforeUpdate,
 } from "@mikro-orm/mongodb";
 
 import type { 
@@ -175,6 +176,20 @@ export class Objects extends BaseEntity {
 
    @BeforeCreate()
    async beforeCreate({ em, entity }: { em: EntityManager, entity: ObjectType }) {
+      const tryToFindSlug = await em.find(Objects, {
+         slug: {
+            $re: slug(entity.title),
+         }, 
+
+      });
+
+      if(tryToFindSlug.length >= 1) entity.slug = slug(`${entity.title}-${tryToFindSlug.length}`);
+
+      return entity;
+   };
+   
+   @BeforeUpdate() 
+   async beforeUpdate({ em, entity }: { em: EntityManager, entity: ObjectType }) {
       const tryToFindSlug = await em.find(Objects, {
          slug: {
             $re: slug(entity.title),
