@@ -35,6 +35,9 @@ const app: Elysia = new Elysia({
 
 // Хенделинг
 app.onError(({ error, code, set }) => {
+   console.log(error);
+   
+
    // Хенделинг ошибок веба
    switch(code) {
       case "NOT_FOUND":

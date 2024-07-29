@@ -32,6 +32,8 @@ export type ObjectPrice = {
    
    global?: number;
 
+   sale?: number;
+
    rent?: {
       year?: number;
       mouth?: number;

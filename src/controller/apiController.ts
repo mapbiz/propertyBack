@@ -55,9 +55,9 @@ export default class ApiController {
          },
       })
 
-      const tryFindObject = await orm.findOne(Objects, {
-         slug: slug(body.title),
-      });
+      // const tryFindObject = await orm.findOne(Objects, {
+      //    slug: slug(body.title),
+      // });
       
       // if(tryFindObject !== null) return responce.failureWithError({
       //    set,
@@ -66,6 +66,9 @@ export default class ApiController {
       //       message: 'Заголовок должен быть уникальным',
       //    }
       // })
+
+      console.log(body);
+      
 
       // @ts-ignore
       const newObject: Objects = new Objects({
@@ -89,6 +92,7 @@ export default class ApiController {
             square: body.priceSquare,
             profitability: body.priceProfitability,
             global: body.priceGlobal,
+            sale: body.priceSale,
             rent: {
                year: body.priceRentYear,
                mouth: body.priceRentMouth,
@@ -109,7 +113,7 @@ export default class ApiController {
             hood: body.infoHood,
          },
       });
-
+      
       
       // Создания обьекта в бд
       await orm.persist([newObject]).flush();
@@ -351,6 +355,7 @@ export default class ApiController {
                "priceProfitability": "price.profitability",
                "priceRentYear": "price.rent.year",
                "priceRentMouth": "price.rent.mouth",
+               "priceSale": "price.sale",
 
                // globalRentFlow
                "globalRentFlowYear": "globalRentFlow.year",
@@ -380,6 +385,7 @@ export default class ApiController {
                "price.profitability",
                "price.rent.year",
                "price.rent.mouth",
+               "price.sale",
 
                "coordinates.lat",
                "coordinates.lon",
