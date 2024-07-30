@@ -132,41 +132,18 @@ export const objectModel = new Elysia()
                maxItems: 30,
                error: "У обьекта не может не быть фото планировки, и их количество не может привышать 30"
             }),
+
+            // logo 
+            tentantLogo: t.Optional(
+               t.File({
+                  error: "Логотип арендадатора должен быть фоткой!"
+               })
+            )
          }, 
          {
             error: "Такого поля не может быть в обьекте!",
          }
       ),
-
-   // createObject: t.Intersect(
-   //    [
-   //       t.Partial(
-   //          t.Object(
-   //             {
-   //                zone: t.BooleanString({ error: "Зона погрузки/разгрузки должна быть booleanLike строкой!" }),
-   //             },
-   //             {
-   //                error: "Такого поля не может быть в обьекте!",
-   //             }
-   //          )
-   //       ),
-   //       t.Required(
-   //          t.Object(
-               // {
-               //    title: t.String({ error: "Заголовок должен быть строкой!" }),
-               //    address: t.String({ error: "Адресс должен быть строкой!" }),
-               //    metro: t.String({ error: "Метро должен быть строкой!" }),
-
-               //    // price
-               //    priceGlobal: t.Numeric({ error: "Цена может быть только нумероподобным числом!" }),
-               // }, 
-               // {
-               //    error: "Такого поля не может быть в обьекте!",
-               // }
-   //          ), 
-   //       ),
-   //    ],
-   // ),
    addTentantObject: t.Array(
       t.Object({
          tentantId: t.String(),
@@ -243,7 +220,7 @@ export const objectModel = new Elysia()
                priceGlobal: t.Numeric({ error: "Цена может быть только нумероподобным числом!" }),
                priceRentYear: t.Numeric({ error: "Арендная ставка в год может быть только нумероподобным числом!" }),
                priceRentMouth: t.Numeric({ error: "Арендная ставка в месяц может быть только нумероподобным числом!" }),
-               priceSale: t.Number({ error: "сниженная цена может быть только нумероподобным числом!" }),
+               priceSale: t.Numeric({ error: "сниженная цена может быть только нумероподобным числом!" }),
 
                // panorama
                panorama: t.String({ error: "Панорама должна быть строкой" }),
@@ -261,12 +238,17 @@ export const objectModel = new Elysia()
                   maxItems: 30,
                   error: "Фото обьекта могут быть от 1 до 30!"
                }),
+
                photosLayout: t.Files({
                   minItems: 1,
                   maxItems: 30,
                   error: "Фото планировки обьекта могут быть от 1 до 30!"
                }),
                
+               tentantLogo: t.File({
+                  error: "Логотип арендодателя должен быть фотографией!"
+               }),
+
                isNew: t.BooleanString({ error: "Новый должна быть booleanLike строкой!" })
             },
             {

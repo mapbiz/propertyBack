@@ -139,6 +139,7 @@ export type ObjectRequest = Omit<Object, 'slug' | 'info' | 'tentantsInfo' | 'pri
    // photos
    photos: Blob | Blob[],
    photosLayout: Blob | Blob[],
+   tentantLogo?: Blob;
 
    // only ready bussiness
    globalRentFlowYear: number;

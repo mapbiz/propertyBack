@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, HTTPMethod } from "elysia";
 
 import bearer from "@elysiajs/bearer";
 import { cors } from "@elysiajs/cors";
@@ -17,6 +17,7 @@ import responce from "./helpers/responce.ts";
 
 import { uniqBy } from "./helpers/uniq.ts";
 
+import colors from "colors";
 
 const port: number = Number(Bun.env.SERVER_PORT!) || 8080;
 
@@ -112,6 +113,23 @@ app.use(staticPlugin({}));
 app.use(apiRouter);
 app.use(authRouter);
 
+
+if(Bun.env.NODE_ENV !== 'development') { 
+   console.log(colors.blue("Доступные пути:"));
+   
+   const colorMethod = (method: HTTPMethod) => {
+      if(method === "GET") return colors.green(method);
+      if(method === "POST") return colors.yellow(method);
+      if(method === "DELETE") return colors.red(method); 
+      if(method === "PATCH" || method === "PUT") return colors.blue(method);
+
+      return colors.bgYellow(method);
+   };
+
+   app.routes.forEach(route => {
+      console.log(colors.cyan(route.path), "-", colorMethod(route.method));
+   });
+}
 
 app.listen(port, () => console.log(`Server run at: http://${app.server?.hostname}:${app.server?.port}${Bun.env.SERVER_BASE_PATH!}`));
 

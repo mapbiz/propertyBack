@@ -114,7 +114,8 @@ export default class ApiController {
          },
       });
       
-      
+      if(!!body.tentantLogo) newObject.tentantLogo = new Images(store.upload.tentantLogo.filename);
+
       // Создания обьекта в бд
       await orm.persist([newObject]).flush();
 
@@ -219,6 +220,10 @@ export default class ApiController {
          fields: ['images', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates', 'isNew'],
          populate: ['images'],
       });
+
+      console.log(getObjects);
+      
+
       return responce.successWithData({ set, data: getObjects });
    }
    async getTentants({ set }: CustomRequestParams): Promise<ReponceWithoutData | ResponceWithData<Tenant[]>> {
@@ -304,6 +309,7 @@ export default class ApiController {
       try {
          delete body.photos;
          delete body.photosLayout;
+         delete body.tentantLogo;
 
          if(!!body?.title) {
             const tryFindObject = await orm.findOne(Objects, {
@@ -322,10 +328,12 @@ export default class ApiController {
          let editableObject: Objects | null = await orm.findOne(Objects, {
             id: params.id,
          }, {
-            populate: ["layoutImages", "images", "tenants"],
+            populate: ["layoutImages", "images", "tenants", "*"],
          });
 
+         console.log(editableObject);
          if(editableObject === null) return responce.failureNotFound({ set, error: { field: "id", message: `Обьект ${params.id} не найден!` } });
+
 
          if(!!store.upload?.photos) {
             const newImages = Array.isArray(store.upload.photos) ? 
@@ -344,6 +352,12 @@ export default class ApiController {
 
 
             request.method === 'patch' ? editableObject.layoutImages.add(newLayoutImages): editableObject.layoutImages.set(newLayoutImages);
+         };
+         if(!!store.upload.tentantLogo) {
+            const newTentantLogo = new Images(store.upload.tentantLogo.filename);
+      
+
+            editableObject.tentantLogo = newTentantLogo;
          };
 
          const clearEmptyFields = objectEmptyFilter(body, [Object.keys(body)]),
@@ -421,6 +435,7 @@ export default class ApiController {
          };
 
          await orm.flush();
+         
 
          return responce.successWithData({ set, data: editableObject });
       }

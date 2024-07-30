@@ -2,6 +2,7 @@ import {
    Entity, 
    Property, 
    OneToMany, 
+   OneToOne,
    ManyToMany,
    Collection,
    wrap,
@@ -9,6 +10,7 @@ import {
    EntityManager,
    BeforeUpdate,
 } from "@mikro-orm/mongodb";
+import type { Rel } from "@mikro-orm/core"; 
 
 import type { 
    TypeObject, 
@@ -125,6 +127,15 @@ export class Objects extends BaseEntity {
    )
    layoutImages = new Collection<Images>(this);
    
+   @OneToOne({
+      eager: true,
+      owner: true,
+      unique: false,
+      nullable: true,
+      entity: () => Images,
+      serializer: image => image?.url,
+   })
+   tentantLogo!: Rel<Images>;
 
    @ManyToMany(
       () => Tenant,

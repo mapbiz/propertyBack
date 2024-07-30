@@ -1,14 +1,13 @@
-import { Elysia, Context } from "elysia";
+import { Elysia } from "elysia";
 
-import { randomUUID } from "node:crypto";
 import { resolve } from "path";
 import { readFileSync } from "node:fs";
-import { writeFile, rename, rm, readFile } from "fs/promises";
+import { rename, rm, readFile } from "fs/promises";
 
 import { safeMethods } from "../../types/method.types";
 import type { TempFile, File } from "../../types/fileUpload.types"; 
 
-import { fileTypeFromBlob } from "file-type";
+import { fileTypeFromBuffer } from "file-type";
 import { convertToWebp } from "../helpers/photoConvert";
 
 const fileUploadDist = resolve(Bun.env.SERVER_PUBLIC!); 
@@ -29,7 +28,7 @@ const uploadFilePlugin: Elysia = new Elysia()
    };
 
    for(let bodyField in body) {
-      const bodyData = body[bodyField];
+      const bodyData = body[bodyField];      
 
       if(bodyData instanceof Blob) {
          filesBlobs.push({
@@ -56,9 +55,9 @@ const uploadFilePlugin: Elysia = new Elysia()
       }; 
 
    };
-
+   
    const uploadedImages: File[] = await Promise.all(filesBlobs.map(async (fileBlob) => {
-      const extensionOfFIle = await fileTypeFromBlob(fileBlob.file);
+      const extensionOfFIle = await fileTypeFromBuffer(await fileBlob.file.arrayBuffer());
    
       const { generatedFileName, createdFilePath } = await convertToWebp({
          imageBuffer: new Buffer(await fileBlob.file.arrayBuffer()),

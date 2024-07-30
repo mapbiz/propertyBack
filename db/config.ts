@@ -12,6 +12,12 @@ import { Migrator } from "@mikro-orm/migrations-mongodb";
 export default defineConfig({
    dbName: 'property',
    extensions: [Migrator],
+   migrations: {
+      path: "./db/migrations",
+      snapshot: true,
+      emit: "ts",
+      transactional: false,
+   },
    entities: [Images, Objects, Tenant, Admin],
    clientUrl: process.env.SERVER_DB_URL,
 });

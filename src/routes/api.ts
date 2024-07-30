@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 
-const router: Elysia = new Elysia({ prefix: '/api/v1' });
+const router: Elysia = new Elysia({ prefix: 'api/v1' });
 
 import { objectConvertField } from "../helpers/converTo";
 
@@ -12,7 +12,6 @@ import responce from "../helpers/responce";
 import ApiController from "../controller/apiController";
 
 const controller: ApiController = new ApiController();
-
 
 // get
 router

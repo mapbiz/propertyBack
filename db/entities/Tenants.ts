@@ -6,7 +6,7 @@ import {
    Collection,
    wrap
 } from "@mikro-orm/mongodb";
-import type { EntityDTO, Rel } from "@mikro-orm/core"; 
+import type { Rel } from "@mikro-orm/core"; 
 
 import { BaseEntity } from "./BaseEntity.ts";
 import { Objects } from "./Object.ts"; 
@@ -31,6 +31,8 @@ export class Tenant extends BaseEntity {
       serializer: image => image.url,
    }) 
    logo!: Rel<Images>;
+
+
 
    @ManyToMany(
       () => Objects, 

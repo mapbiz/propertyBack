@@ -4,44 +4,87 @@ import { randomUUID } from "node:crypto";
 
 import orm from "../../db";
 
-import { createPrompt, createSelection } from 'bun-promptx'
-
 import colors from "colors";
+
+import inquirer from "inquirer";
+
 (async () => {
-   const login: string = createPrompt("Введите имя: ").value;
-
-   let password;
-
-   const generatePassword = createSelection([
+   const questions = [
       {
-         text: "Да"
+         type: 'input',
+         name: "name",
+         message: "Введите имя:"
       },
       {
-         text: "Нет"
+         type: 'input',
+         name: "password",
+         message: "Введите пароль:"
       }
-   ], 
-   {
-      headerText: "Генерировать пароль?"
-   }
-   );
+   ];
 
-   if(generatePassword.selectedIndex === 0) password = randomUUID();
-   else password = createPrompt("Введите пароль: ").value;
+   await inquirer.prompt(questions).then(async (answers: { name: string, password?: string }) => {
+      let resultedPassword: string; 
+      
+      if(!answers.password) {
+         resultedPassword = randomUUID();
+         answers.password = resultedPassword;
+      }
+      else resultedPassword = answers.password;
+      
+      // hash pass on bcrypt
+      resultedPassword = await Bun.password.hash(resultedPassword, 'bcrypt');
 
-   let resultedPassword = password;
+      const generateAdmin: Admin = new Admin({
+         login: answers.name,
+         password: resultedPassword,
+      });
 
-   password = await Bun.password.hash(password, 'bcrypt');
+      await orm.persist([generateAdmin]).flush();
 
-   const newAdmin = new Admin({
-      login,
-      password,
-   });
+      console.log(colors.green("Пользователь успешно создан"));
 
-   await orm.persist([newAdmin]).flush();
+      console.log({
+         ...answers,
+      });
 
-   console.log(colors.green("Пользователь успешно создан"));
-
-   console.log({ login, password: resultedPassword });
-
-   return process.exit(1);
+      return process.exit(1);
+   })   
 })();
+// (async () => {
+//    const login: string = createPrompt("Введите имя: ").value;
+
+//    let password;
+
+//    const generatePassword = createSelection([
+//       {
+//          text: "Да"
+//       },
+//       {
+//          text: "Нет"
+//       }
+//    ], 
+//    {
+//       headerText: "Генерировать пароль?"
+//    }
+//    );
+
+//    if(generatePassword.selectedIndex === 0) password = randomUUID();
+//    else password = createPrompt("Введите пароль: ").value;
+
+//    let resultedPassword = password;
+
+//    password = await Bun.password.hash(password, 'bcrypt');
+
+//    const newAdmin = new Admin({
+//       login,
+//       password,
+//    });
+
+//    await orm.persist([newAdmin]).flush();
+
+   // console.log(colors.green("Пользователь успешно создан"));
+
+   // console.log({ login, password: resultedPassword });
+
+//    return process.exit(1);
+// })();
