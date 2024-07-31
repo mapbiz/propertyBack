@@ -51,10 +51,11 @@ const serverLoggerPlugin = new Elysia()
       serverFatalError.fatal({ errorCodeOfElysia: code, errorStack: error});
    }
 })
-.onRequest(({ loggerPlugin: { serverRequest }, request, set: { status } }) => {
+.onRequest(({ loggerPlugin: { serverRequest }, request, set: { status } }) => {   
    serverRequest.info(`${request.url} ${colorsOfMethods(request.method)}  ${colorsOfStatuses(status)}`);
 })
 .onResponse(({ request, set: { status }, loggerPlugin: { serverResponce } }) => {
+
    serverResponce.info(`${ request.url } ${ colorsOfMethods(request.method) } ${colorsOfStatuses(status)}`);
 });
 

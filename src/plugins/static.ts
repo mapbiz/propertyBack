@@ -68,8 +68,8 @@ const staticPlugin = ({
       setETag(buildETagFor(findFile));
 
       set.headers['Content-Type'] = (mime as MimeType);
-      set.headers['Content-Length'] = findFileMetadata.size.toString();
-      set.headers['Last-Modified'] = findFileMetadata.mtime.toString();
+      // set.headers['Content-Length'] = findFileMetadata.size.toString();
+      // set.headers['Last-Modified'] = findFileMetadata.mtime.toString();
       
       set.status = 200;
 
@@ -78,6 +78,8 @@ const staticPlugin = ({
       });
    }
    catch(err) {
+      console.log(err);
+      
       return;
    };
 });

@@ -3,7 +3,8 @@ import { Elysia, HTTPMethod } from "elysia";
 import bearer from "@elysiajs/bearer";
 import { cors } from "@elysiajs/cors";
 import jwt from "@elysiajs/jwt";
-import { cookie } from '@elysiajs/cookie'
+import { cookie } from '@elysiajs/cookie';
+import { helmet } from 'elysia-helmet';
 
 import staticPlugin from "./plugins/static.ts";
 import serverLoggerPlugin from "./plugins/logger";
@@ -96,6 +97,7 @@ app.use(cookie({
 }));
 
 app.use(bearer());
+app.use(helmet());
 app.use(jwt({
    name: "jwt",
    secret: "secret",
