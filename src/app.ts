@@ -23,9 +23,8 @@ import colors from "colors";
 const port: number = Number(Bun.env.SERVER_PORT!) || 8080;
 
 
-const app: Elysia = new Elysia({
+const app = new Elysia({
    prefix: Bun.env.SERVER_BASE_PATH!,
-   analytic: true,
    cookie: {
       sameSite: 'none',
       secure: true,
@@ -116,6 +115,7 @@ app.use(apiRouter);
 app.use(authRouter);
 
 
+
 if(Bun.env.NODE_ENV !== 'development') { 
    console.log(colors.blue("Доступные пути:"));
    
@@ -132,6 +132,7 @@ if(Bun.env.NODE_ENV !== 'development') {
       console.log(colors.cyan(route.path), "-", colorMethod(route.method));
    });
 }
+
 
 app.listen(port, () => console.log(`Server run at: http://${app.server?.hostname}:${app.server?.port}${Bun.env.SERVER_BASE_PATH!}`));
 

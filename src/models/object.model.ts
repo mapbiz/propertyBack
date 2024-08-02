@@ -111,10 +111,16 @@ export const objectModel = new Elysia()
             priceRentMouth: t.Optional(
                t.Numeric({ error: "Арендная ставка в месяц может быть только нумероподобным числом!" })
             ),
-            priceSale: t.Optional(
-               t.Numeric({ error: "Сниженная цена может быть только нумероподобным числом!" })
+            // priceSale: t.Optional(
+            //    t.Numeric({ error: "Сниженная цена может быть только нумероподобным числом!" })
+            // ),
+            priceSaleSquare: t.Optional( 
+               t.Numeric({ error: "Скидка на м2 может быть только нумероподобным числом!" }),
             ),
-            
+            priceSaleGlobal: t.Optional( 
+               t.Numeric({ error: "Скидва может быть только нумероподобным числом!" }),
+            ),
+
             // panorama
             panorama: t.Optional(
                t.String({
@@ -220,7 +226,9 @@ export const objectModel = new Elysia()
                priceGlobal: t.Numeric({ error: "Цена может быть только нумероподобным числом!" }),
                priceRentYear: t.Numeric({ error: "Арендная ставка в год может быть только нумероподобным числом!" }),
                priceRentMouth: t.Numeric({ error: "Арендная ставка в месяц может быть только нумероподобным числом!" }),
-               priceSale: t.Numeric({ error: "сниженная цена может быть только нумероподобным числом!" }),
+               // priceSale: t.Numeric({ error: "сниженная цена может быть только нумероподобным числом!" }),
+               priceSaleSquare: t.Numeric({ error: "Скидка на м2 может быть только нумероподобным числом!" }),
+               priceSaleGlobal: t.Numeric({ error: "Скидва может быть только нумероподобным числом!" }),
 
                // panorama
                panorama: t.String({ error: "Панорама должна быть строкой" }),

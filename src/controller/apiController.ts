@@ -65,10 +65,7 @@ export default class ApiController {
       //       field: 'title',
       //       message: 'Заголовок должен быть уникальным',
       //    }
-      // })
-
-      console.log(body);
-      
+      // })      
 
       // @ts-ignore
       const newObject: Objects = new Objects({
@@ -92,7 +89,10 @@ export default class ApiController {
             square: body.priceSquare,
             profitability: body.priceProfitability,
             global: body.priceGlobal,
-            sale: body.priceSale,
+            sale: {
+               square: body.priceSaleSquare,
+               global: body.priceSaleGlobal,
+            },
             rent: {
                year: body.priceRentYear,
                mouth: body.priceRentMouth,
@@ -331,7 +331,6 @@ export default class ApiController {
             populate: ["layoutImages", "images", "tenants", "*"],
          });
 
-         console.log(editableObject);
          if(editableObject === null) return responce.failureNotFound({ set, error: { field: "id", message: `Обьект ${params.id} не найден!` } });
 
 
@@ -369,7 +368,8 @@ export default class ApiController {
                "priceProfitability": "price.profitability",
                "priceRentYear": "price.rent.year",
                "priceRentMouth": "price.rent.mouth",
-               "priceSale": "price.sale",
+               "priceSaleGlobal": "price.sale.global",
+               "priceSaleSquare": "price.sale.square",
 
                // globalRentFlow
                "globalRentFlowYear": "globalRentFlow.year",
@@ -399,7 +399,8 @@ export default class ApiController {
                "price.profitability",
                "price.rent.year",
                "price.rent.mouth",
-               "price.sale",
+               "price.sale.global",
+               "price.sale.square",
 
                "coordinates.lat",
                "coordinates.lon",
@@ -426,7 +427,10 @@ export default class ApiController {
             ],
          );
          
-         wrap(editableObject).assign(renameBody, { em: orm });
+         wrap(editableObject).assign(
+            renameBody, 
+            { em: orm }
+         );
          
          if(body?.title !== undefined) {
             wrap(editableObject).assign({
