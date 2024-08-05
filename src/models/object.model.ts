@@ -253,8 +253,13 @@ export const objectModel = new Elysia()
                   error: "Фото планировки обьекта могут быть от 1 до 30!"
                }),
                
-               tentantLogo: t.File({
-                  error: "Логотип арендодателя должен быть фотографией!"
+               tentantLogo: t.Union([ 
+                  t.File({
+                     error: "Логотип арендодателя должен быть фотографией!"
+                  }),
+                  t.Literal('delete', { error: "Можно только строку delete" })
+               ], {
+                  error: "Логотип может быть или файлом или литералом delete"
                }),
 
                isNew: t.BooleanString({ error: "Новый должна быть booleanLike строкой!" })

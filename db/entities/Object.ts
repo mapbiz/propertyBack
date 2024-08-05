@@ -135,7 +135,7 @@ export class Objects extends BaseEntity {
       entity: () => Images,
       serializer: image => image?.url,
    })
-   tentantLogo!: Rel<Images>;
+   tentantLogo?: Rel<Images>;
 
    @ManyToMany(
       () => Tenant,

@@ -309,7 +309,7 @@ export default class ApiController {
       try {
          delete body.photos;
          delete body.photosLayout;
-         delete body.tentantLogo;
+         // delete body.tentantLogo;
 
          if(!!body?.title) {
             const tryFindObject = await orm.findOne(Objects, {
@@ -358,6 +358,17 @@ export default class ApiController {
 
             editableObject.tentantLogo = newTentantLogo;
          };
+
+         if(body.tentantLogo === 'delete') {
+            const tentantLogoRef = orm.getReference(Images, editableObject.tentantLogo?.id);
+
+            await orm.remove(tentantLogoRef).flush();
+
+            editableObject.tentantLogo = null;
+         };
+
+         delete body.tentantLogo;
+
 
          const clearEmptyFields = objectEmptyFilter(body, [Object.keys(body)]),
          renameBody = dottedFieldToNestedObject(
