@@ -54,6 +54,14 @@ export default class ApiController {
             message: 'У обьекта не может не быть фото планировки!'
          },
       })
+      
+      if(body.isNew && body.isNewPrice) return responce.failureWithError({
+         set,
+         error: {
+            field: 'isNewPrice',
+            message: 'Обьект не может быть одновременно новым и с новой ценой!'
+         },
+      });
 
       // const tryFindObject = await orm.findOne(Objects, {
       //    slug: slug(body.title),
@@ -77,6 +85,7 @@ export default class ApiController {
          agentRemuneration: body.agentRemuneration,
          zone: body.zone,
          isNew: body.isNew,
+         isNewPrice: body.isNewPrice,
          coordinates: {
             lat: body.lat,
             lon: body.lon,
@@ -217,11 +226,9 @@ export default class ApiController {
             params.type:
             { $ne: 'hidden' }
          },
-         fields: ['images', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates', 'isNew'],
+         fields: ['images', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates', 'isNew', 'isNewPrice'],
          populate: ['images'],
       });
-
-      console.log(getObjects);
       
 
       return responce.successWithData({ set, data: getObjects });
@@ -307,6 +314,14 @@ export default class ApiController {
    };
    async editObject({body, set, params, store, request}: CustomRequestParams<Objects>) {
       try {
+         if(body?.isNew === true && body?.isNewPrice === true) return responce.failureWithError({
+            set,
+            error: {
+               field: 'isNewPrice',
+               message: 'Обьект не может быть одновременно новым и с новой ценой!'
+            },
+         });
+
          delete body.photos;
          delete body.photosLayout;
          // delete body.tentantLogo;
@@ -366,6 +381,10 @@ export default class ApiController {
 
             editableObject.tentantLogo = null;
          };
+
+         // toggle isNew fields
+         if(editableObject.isNew && body?.isNewPrice === true) editableObject.isNew = false;
+         if(editableObject.isNewPrice && body?.isNew === true) editableObject.isNewPrice = false;
 
          delete body.tentantLogo;
 
@@ -437,7 +456,9 @@ export default class ApiController {
                "panorama",
             ],
          );
+
          
+
          wrap(editableObject).assign(
             renameBody, 
             { em: orm }
