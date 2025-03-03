@@ -1,4 +1,4 @@
-import { Entity, Property, ManyToOne, OneToOne } from "@mikro-orm/mongodb";
+import { Entity, Property, ManyToOne, OneToOne, Cascade } from "@mikro-orm/mongodb";
 
 import { BaseEntity } from "./BaseEntity.ts";
 

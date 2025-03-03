@@ -9,6 +9,7 @@ import {
   BeforeCreate,
   EntityManager,
   BeforeUpdate,
+  Cascade, 
 } from "@mikro-orm/mongodb"
 import type { Rel } from "@mikro-orm/core"
 
@@ -20,6 +21,8 @@ import type {
   Coordinates,
   ObjectPrice,
 } from "../../types/object.types.ts"
+
+import {SoftDeletable} from "mikro-orm-soft-delete";
 
 import { slug } from "../../src/helpers/slug.ts"
 
@@ -70,6 +73,9 @@ const computedType = ({
 
 type CollectionImages = Collection<Images, object>
 
+const CascadeSoftDelete: Cascade[] = [Cascade.PERSIST];
+
+@SoftDeletable(() => Objects, 'deletedAt', () => new Date())
 @Entity({ tableName: "object" })
 export class Objects extends BaseEntity {
   @Property({ nullable: false, unique: false, default: "hidden" })
@@ -129,6 +135,10 @@ export class Objects extends BaseEntity {
 
   @Property({ nullable: true, unique: false, default: false })
   public isNewPrice: boolean
+
+
+  @Property({ nullable: true })
+  public deletedAt?: Date;
 
   @OneToMany(() => Images, "object", {
     unique: false,
@@ -206,6 +216,7 @@ export class Objects extends BaseEntity {
       // @ts-ignore
       delete resultObject.tenants
     }
+    
 
     return resultObject
   }

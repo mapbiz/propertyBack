@@ -34,6 +34,7 @@ import { Loaded, wrap } from "@mikro-orm/core";
 
 import { slug } from "../helpers/slug";
 import { tenantModel } from "../models/tentan.model";
+import { SOFT_DELETABLE_FILTER } from "mikro-orm-soft-delete";
 
 export default class ApiController {
    // create
@@ -217,6 +218,22 @@ export default class ApiController {
       return responce.successCreated.withData({ set, data: newTentant });
    };
 
+   async copyObject({set, params}: Pick<
+      CustomRequestParams<
+      Context['body'], 
+      Context['set'], 
+      Context['store'], 
+      Context['request'], 
+      { id: string }
+      >, 
+      'set' | 'params'>) {
+         const findObjectOfCopied = await orm.findOne(Objects, {
+            id: params.id,
+         });   
+
+         console.log({ findObjectOfCopied });
+         
+      };
 
    // get
    async getObjects({ set, params }: ObjectTypeRequest): Promise<ResponceWithData<Loaded<Objects, "images", "title" | "images" | "info" | "address" | "metro" | "price", never>[]>>  {
@@ -260,6 +277,23 @@ export default class ApiController {
 
 
       return responce.successWithData({ set, data: getCurrentObject });
+   };
+
+   async getArcivedObjects({set}: ObjectTypeRequest) {
+      const arcivedObjects = await orm.find(Objects, {
+         deletedAt: {
+            $ne: null,
+         }
+      }, {
+         fields: ['images', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates', 'isNew', 'isNewPrice'],
+         populate: ['images'],
+         filters: {
+            [SOFT_DELETABLE_FILTER]: false,
+         }
+      });
+
+      
+      return responce.successWithData({ set, data: arcivedObjects});
    };
 
    // patch
@@ -527,6 +561,41 @@ export default class ApiController {
    };
 
    // delete 
+   async reArchiveObject({ set, params }: Pick<
+      CustomRequestParams<
+      Context['body'], 
+      Context['set'], 
+      Context['store'], 
+      Context['request'], 
+      { id: string }
+      >, 
+      'set' | 'params'>) {
+         const restoreObjectOfDelete = await orm.findOne(Objects, {
+            deletedAt: {
+               $ne: null,
+            },
+            id: params.id,
+            }, {
+               fields: ['images', 'deletedAt', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates', 'isNew', 'isNewPrice'],
+               populate: ['images'],
+               filters: {
+                  [SOFT_DELETABLE_FILTER]: false,
+               }
+            }  
+         );
+         
+         if(!restoreObjectOfDelete) return responce.failureNotFound({ set, error: {
+            field: "id",
+            message: "Не найден обьект с таким id"
+         } }); 
+
+         restoreObjectOfDelete.deletedAt = undefined;
+         
+         await orm.flush();
+
+         return responce.successWithData({ set, data: restoreObjectOfDelete });
+      };
+
    async deleteObject({ set, params }: Pick<
       CustomRequestParams<
       Context['body'], 
@@ -539,6 +608,9 @@ export default class ApiController {
    ): Promise<ReponceWithoutData | ResponceWithError<string>> {
       const getObjectToDelete: Objects | null = await orm.findOne(Objects, {
          id: params.id,
+      }, {
+         fields: ['*'],
+         populate: ['images', 'layoutImages'],
       });
 
       if(!getObjectToDelete) return responce.failureNotFound({
@@ -549,7 +621,10 @@ export default class ApiController {
          },
       });
 
-      await orm.removeAndFlush(getObjectToDelete);
+      // soft delete update
+      getObjectToDelete.deletedAt = new Date();
+
+      await orm.flush();
 
       return responce.successWithoutData({ set });
    };

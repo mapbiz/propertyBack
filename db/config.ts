@@ -8,10 +8,11 @@ import { Tenant } from "./entities/Tenants.ts";
 import { Admin } from "./entities/Admin.ts";
 
 import { Migrator } from "@mikro-orm/migrations-mongodb";
+import {SoftDeleteHandler} from "mikro-orm-soft-delete";
 
 export default defineConfig({
-   dbName: 'property',
-   extensions: [Migrator],
+   dbName: process.env.SERVER_DB_NAME,
+   extensions: [Migrator, SoftDeleteHandler],
    migrations: {
       path: "./db/migrations",
       snapshot: true,

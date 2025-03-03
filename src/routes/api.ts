@@ -18,6 +18,7 @@ router
 .use(objectModel)
 .get('/tentants', controller.getTentants)
 .get('/objects', controller.getObjects)
+.get('/objects/archive', controller.getArcivedObjects)
 .get('/object/:slug', controller.getObjectBySlug)
 .get('/objects/:type', controller.getObjects, {
    params: 'getObject',
@@ -32,6 +33,7 @@ router
       id: t.String()
    }),
 })
+.post('/object/copy/:id', controller.copyObject)
 .post('/object', controller.createNewObject, 
 {
    body: 'createObject',
@@ -89,6 +91,14 @@ router
          error: "Такой параметр не предусмотрен в запросе!"
       }
    ),
+})
+.delete('/object/archive/:id', controller.reArchiveObject, {
+   params: t.Object({
+         id: t.String({ error: "id обязателен для восстановления обьекта" })
+      },
+      {
+         error: "Такой параметр не предусмотрен в запросе!"
+      })
 })
 .delete('/tentant/:id', controller.deleteTentant, {
    params: t.Object(
