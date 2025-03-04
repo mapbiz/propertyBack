@@ -9,6 +9,7 @@ import {
   BeforeCreate,
   EntityManager,
   BeforeUpdate,
+  AfterCreate,
   Cascade, 
 } from "@mikro-orm/mongodb"
 import type { Rel } from "@mikro-orm/core"
@@ -29,6 +30,7 @@ import { slug } from "../../src/helpers/slug.ts"
 import { BaseEntity } from "./BaseEntity.ts"
 import { Images } from "./Images.ts"
 import { Tenant } from "./Tenants.ts"
+import { comperessionLogo } from "../../src/helpers/image.ts";
 
 type NeedsTypes = {
   payback?: number
@@ -236,6 +238,7 @@ export class Objects extends BaseEntity {
     if (tryToFindSlug.length >= 1)
       entity.slug = slug(`${entity.title}-${tryToFindSlug.length}`)
 
+
     return entity
   }
 
@@ -258,6 +261,8 @@ export class Objects extends BaseEntity {
 
     return entity
   }
+
+
 
   constructor({
     title,

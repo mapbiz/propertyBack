@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 
 import { resolve } from "path";
 import { readFileSync } from "node:fs";
-import { rename, rm, readFile } from "fs/promises";
+import { rename, rm, readFile, writeFile } from "fs/promises";
 
 import { safeMethods } from "../../types/method.types";
 import type { TempFile, File } from "../../types/fileUpload.types"; 

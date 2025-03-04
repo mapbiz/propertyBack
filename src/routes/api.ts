@@ -82,7 +82,17 @@ router
 // delete
 router
 .use(objectModel)
-.delete('/object/:id', controller.deleteObject, {
+.delete('/object/:id', controller.forceDeleteObject, {
+   params: t.Object(
+      {
+         id: t.String({ error: "id обязателен для удаления обьекта" })
+      },
+      {
+         error: "Такой параметр не предусмотрен в запросе!"
+      }
+   ),
+})
+.delete('/archive/object/:id', controller.deleteObject, {
    params: t.Object(
       {
          id: t.String({ error: "id обязателен для удаления обьекта" })

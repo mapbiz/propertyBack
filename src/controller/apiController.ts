@@ -35,6 +35,7 @@ import { Loaded, wrap } from "@mikro-orm/core";
 import { slug } from "../helpers/slug";
 import { tenantModel } from "../models/tentan.model";
 import { SOFT_DELETABLE_FILTER } from "mikro-orm-soft-delete";
+import { compressionLogo } from "../helpers/image";
 
 export default class ApiController {
    // create
@@ -124,7 +125,9 @@ export default class ApiController {
          },
       });
       
-      if(!!body.tentantLogo) newObject.tentantLogo = new Images(store.upload.tentantLogo.filename);
+      if(!!body.tentantLogo) 
+         newObject.tentantLogo = new Images(store.upload.tentantLogo.filename);
+      
 
       // Создания обьекта в бд
       await orm.persist([newObject]).flush();
@@ -595,7 +598,38 @@ export default class ApiController {
 
          return responce.successWithData({ set, data: restoreObjectOfDelete });
       };
+   
+   async forceDeleteObject({set, params}: Pick<
+      CustomRequestParams<
+      Context['body'], 
+      Context['set'], 
+      Context['store'], 
+      Context['request'], 
+      { id: string }
+      >, 
+      'set' | 'params'>) {
+         const getObjectToDelete = await orm.findOne(Objects, {
+            id: params.id,
+         }, {
+            fields: ['*'],
+            populate: ['images', 'layoutImages']
+         });
 
+         if(!getObjectToDelete) return responce.failureNotFound({
+            set,
+            error: {
+               field: 'id',
+               message: `Обьект ${params.id} не найден!`
+            },
+         });
+
+         await orm.nativeDelete(Objects, { id: getObjectToDelete.id });
+
+         await orm.flush();
+
+         return responce.successWithoutData({ set });
+      };
+         
    async deleteObject({ set, params }: Pick<
       CustomRequestParams<
       Context['body'], 
