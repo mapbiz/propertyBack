@@ -237,14 +237,14 @@ export default class ApiController {
 
    // get
    async getObjects({ set, params }: ObjectTypeRequest): Promise<ResponceWithData<Loaded<Objects, "images", "title" | "images" | "info" | "address" | "metro" | "price", never>[]>>  {
-      const getObjects: Loaded<Objects, "images", "title" | "images" | "info" | "address" | "metro" | "price", never>[] = await orm.findAll(Objects, {
+      const getObjects = await orm.findAll(Objects, {
          where: {
             type: !!params?.type ?
             params.type:
             { $ne: 'hidden' }
          },
-         fields: ['images', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates', 'isNew', 'isNewPrice'],
-         populate: ['images'],
+         fields: ['images', 'layoutImages', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates', 'isNew', 'isNewPrice'],
+         populate: ['images', 'layoutImages'],
       });
       
 
@@ -285,8 +285,8 @@ export default class ApiController {
             $ne: null,
          }
       }, {
-         fields: ['images', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates', 'isNew', 'isNewPrice'],
-         populate: ['images'],
+         fields: ['images', 'layoutImages', 'slug', 'type', 'title', 'price', 'info', 'address', 'metro', 'coordinates', 'isNew', 'isNewPrice'],
+         populate: ['images', 'layoutImages'],
          filters: {
             [SOFT_DELETABLE_FILTER]: false,
          }

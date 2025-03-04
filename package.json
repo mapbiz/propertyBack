@@ -27,7 +27,7 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "bun --hot src/app.ts",
+    "dev": "NODE_ENV=development bun --hot src/app.ts",
     "build": "bun build src/app.ts",
     "start": "NODE_ENV=production bun src/app.ts",
     "test": "bun test",
@@ -35,6 +35,7 @@
     "generate:secrets": "bun ./src/generate/secret.ts",
     "generate:rsa-keys": "bun ./src/generate/rsaKeys.ts",
     "generate:convert-files": "bun ./src/generate/convertFiles.ts",
+    "generate:migrate-data": "bun ./src/generate/dataMigrator.ts",
     "mikro-orm": "NODE_OPTIONS='--loader ts-node/esm --no-warnings' mikro-orm",
     "db:update": "NODE_OPTIONS='--loader ts-node/esm --no-warnings' mikro-orm schema:update --config ./db/config.ts --run",
     "db:drop": "NODE_OPTIONS='--loader ts-node/esm --no-warnings' mikro-orm schema:drop --config ./db/config.ts --run",

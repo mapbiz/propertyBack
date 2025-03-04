@@ -73,8 +73,6 @@ const computedType = ({
 
 type CollectionImages = Collection<Images, object>
 
-const CascadeSoftDelete: Cascade[] = [Cascade.PERSIST];
-
 @SoftDeletable(() => Objects, 'deletedAt', () => new Date())
 @Entity({ tableName: "object" })
 export class Objects extends BaseEntity {
@@ -148,7 +146,7 @@ export class Objects extends BaseEntity {
   })
   images = new Collection<Images>(this)
 
-  @OneToMany(() => Images, "object", {
+  @OneToMany(() => Images, "objectLayout", {
     unique: false,
     serializer: (layoutImage: CollectionImages) => {
       return layoutImage.map(layoutImage => layoutImage.url)

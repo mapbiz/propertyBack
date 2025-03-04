@@ -22,6 +22,15 @@ export class Images extends BaseEntity {
    })
    object!: Objects;
    
+   @ManyToOne(() => Objects, {
+      mapToPk: true,
+      serializedPrimaryKey: true,
+      nullable: true,
+      default: null,
+      unique: false,
+   })
+   objectLayout!: Objects;
+
    @OneToOne({
       eager: true, 
       entity: () => Objects,

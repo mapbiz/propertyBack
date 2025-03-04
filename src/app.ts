@@ -115,7 +115,6 @@ app.use(apiRouter);
 app.use(authRouter);
 
 
-
 if(Bun.env.NODE_ENV !== 'development') { 
    console.log(colors.blue("Доступные пути:"));
    
